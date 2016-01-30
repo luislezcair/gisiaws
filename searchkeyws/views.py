@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from searchkeyws.models import WSRequest, WSResponse
-from searchkeyws.serializers import WSRequestSerializer, WSResponseSerializer
+from searchkeyws.models import WSRequest, WSResponse, WSFilteredUrlsRequest
+from searchkeyws.serializers import WSRequestSerializer, WSResponseSerializer, WSFilteredUrlsRequestSerializer
 
 
 class WSRequestViewSet(viewsets.ModelViewSet):
@@ -11,3 +11,8 @@ class WSRequestViewSet(viewsets.ModelViewSet):
 class WSResponseViewSet(viewsets.ModelViewSet):
     queryset = WSResponse.objects.all()
     serializer_class = WSResponseSerializer
+
+
+class WSFilteredUrlsRequestViewSet(viewsets.ModelViewSet):
+    queryset = WSFilteredUrlsRequest.objects.all()
+    serializer_class = WSFilteredUrlsRequestSerializer

@@ -22,6 +22,7 @@ from searchkeyws import views
 router = DefaultRouter()
 router.register(r'wsrequests', views.WSRequestViewSet)
 router.register(r'wsresponses', views.WSResponseViewSet)
+router.register(r'wsfilteredurlsrequests', views.WSFilteredUrlsRequestViewSet)
 
 urlpatterns = [
     url(r'^api/', include(router.urls)),

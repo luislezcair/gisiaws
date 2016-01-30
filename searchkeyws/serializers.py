@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from searchkeyws.models import WSRequest, WSResponse, SearchKey, SearchResult, SearchUrl
+from searchkeyws.models import *
 
 
 class SearchKeySerializer(serializers.ModelSerializer):
@@ -12,6 +12,12 @@ class SearchUrlSerializer(serializers.ModelSerializer):
     class Meta:
         model = SearchUrl
         fields = ('url',)
+
+
+class FilteredUrlSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FilteredUrl
+        fields = ('orden', 'url')
 
 
 class SearchResultSerializer(serializers.ModelSerializer):
@@ -29,6 +35,15 @@ class WSRequestSerializer(serializers.ModelSerializer):
         model = WSRequest
         fields = ('id_proyecto', 'nombre_directorio', 'claves')
 
+    def create(self, validated_data):
+        claves = validated_data.pop('claves')
+        request = WSRequest.objects.create(**validated_data)
+
+        for key in claves:
+            SearchKey.objects.create(request=request, **key)
+
+        return request
+
 
 class WSResponseSerializer(serializers.ModelSerializer):
     buscadores = SearchResultSerializer(many=True)
@@ -36,3 +51,20 @@ class WSResponseSerializer(serializers.ModelSerializer):
     class Meta:
         model = WSResponse
         fields = ('id_proyecto', 'buscadores')
+
+
+class WSFilteredUrlsRequestSerializer(serializers.ModelSerializer):
+    urls = FilteredUrlSerializer(many=True)
+
+    class Meta:
+        model = WSFilteredUrlsRequest
+        fields = ('id_proyecto', 'nombre_directorio', 'urls')
+
+    def create(self, validated_data):
+        urls = validated_data.pop('urls')
+        request = WSFilteredUrlsRequest.objects.create(**validated_data)
+
+        for url in urls:
+            FilteredUrl.objects.create(request=request, **url)
+
+        return request
