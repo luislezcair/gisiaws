@@ -52,6 +52,19 @@ class WSResponseSerializer(serializers.ModelSerializer):
         model = WSResponse
         fields = ('id_proyecto', 'buscadores')
 
+    def create(self, validated_data):
+        buscadores = validated_data.pop('buscadores')
+        wsreponse = WSResponse.objects.create(**validated_data)
+
+        for buscador in buscadores:
+            urls = buscador.pop('urls')
+            result = SearchResult.objects.create(response=wsreponse, **buscador)
+
+            for url in urls:
+                SearchUrl.objects.create(searchresult=result, **url)
+
+        return wsreponse
+
 
 class WSFilteredUrlsRequestSerializer(serializers.ModelSerializer):
     urls = FilteredUrlSerializer(many=True)

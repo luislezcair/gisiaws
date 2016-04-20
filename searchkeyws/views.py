@@ -10,6 +10,14 @@ class WSResponseViewSet(viewsets.ModelViewSet):
     queryset = WSResponse.objects.all()
     serializer_class = WSResponseSerializer
 
+    # def create(self, request, *args, **kwargs):
+    #     wsresponse = WSResponseSerializer(data=request.data)
+
+    #     if wsresponse.is_valid():
+    #         wsresponse.save()
+
+    #         data = wsresponse.validated_data
+
 
 class WSRequestViewSet(viewsets.ModelViewSet):
     queryset = WSRequest.objects.all()
@@ -31,7 +39,10 @@ class WSRequestViewSet(viewsets.ModelViewSet):
             for i, c in enumerate(data['claves']):
                 print("Clave %d: " % i, c['clave'])
 
-        return Response(data={"status": "ok"})
+        # Devuelve una respuesta válida para probar la comunicación
+        response = WSResponse.objects.all().last()
+        serializer = WSResponseSerializer(response)
+        return Response(data=serializer.data)
 
 
 class WSFilteredUrlsRequestViewSet(viewsets.ModelViewSet):
