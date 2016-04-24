@@ -4,7 +4,7 @@ from rest_framework import viewsets
 from rest_framework.response import Response
 from searchkeyws.models import WSRequest, WSResponse, WSFilteredUrlsRequest
 from searchkeyws.serializers import WSRequestSerializer, WSResponseSerializer, WSFilteredUrlsRequestSerializer
-
+from get_urls.search import obtener_urls
 
 class WSResponseViewSet(viewsets.ModelViewSet):
     queryset = WSResponse.objects.all()
@@ -33,6 +33,11 @@ class WSRequestViewSet(viewsets.ModelViewSet):
 
             # Si la solicitud es válida, los datos están en data
             # Acá se podría lanzar el proceso de obtención de URLs con las claves.
+
+            json_respuesta = obtener_urls(data)
+            # json_respuesta por ahora es un json con los enlaces de google y bing
+
+
             print("id_proyecto: ", data['id_proyecto'])
             print("nombre_directorio", data['nombre_directorio'])
 
