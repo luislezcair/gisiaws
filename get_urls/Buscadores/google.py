@@ -15,7 +15,7 @@ def generar_consulta_google(q):
     reload(sys)
     sys.setdefaultencoding('utf8')
 
-    engine_google = Google(license="AIzaSyCvvHb8SYgHvS5gEIQabxuJ0Kl0sYdHl9U", language="en")    
+    engine_google = Google(license="AIzaSyCvvHb8SYgHvS5gEIQabxuJ0Kl0sYdHl9U", language="en")       
     for consulta in q:
         for i in range(1, 2):
             for result in engine_google.search(consulta, start=i, count=10, type=SEARCH, cached=False):

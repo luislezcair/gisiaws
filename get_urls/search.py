@@ -15,15 +15,16 @@ def obtener_urls(data):
         proyecto.agregarClaves(clave["clave"])
 
     proyecto.generarUrl(proyecto.claves)
-    proyecto.generarMensajeJson()
+    # proyecto.generarMensajeJson()
 
     data_json = proyecto.generarMensajeJson()
 
-    data_response = json.dumps(data_json, indent=4, sort_keys=False)  
+    # data_response = json.dumps(data_json, indent=4, sort_keys=False)  
 
-    #crear .txt
-    archi=open('json.txt','w')
-    archi.write(json.dumps(data_json, indent=4, sort_keys=False))
-    archi.close()
+    # #crear .txt
+    # archi=open('json.txt','w')
+    # archi.write(json.dumps(data_json, indent=4, sort_keys=False))
+    # archi.close()
 
-    return data_response
+    # return data_response
+    return data_json
