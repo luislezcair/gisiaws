@@ -28,8 +28,8 @@ class Proyecto:
     def generarUrl(self, consulta):
         self.url_google.append(generar_consulta_google(consulta))
         self.url_bing.append(generar_consulta_bing(consulta))
-        # self.url_excite.append(generar_consulta_excite(consulta))
-        # self.url_intelligo.append(generar_consulta_intelligo(consulta))
+        self.url_excite.append(generar_consulta_excite(consulta))
+        self.url_intelligo.append(generar_consulta_intelligo(consulta))
 
     def crear_buscador_json(self, nombre_buscador, urls):
 
@@ -50,6 +50,6 @@ class Proyecto:
 
         data_json['buscadores'].append(self.crear_buscador_json("Google", self.url_google))
         data_json['buscadores'].append(self.crear_buscador_json("Bing", self.url_bing))
-        # data_json['buscadores'].append(self.crear_buscador_json("Excite", self.url_excite))
-        # data_json['buscadores'].append(self.crear_buscador_json("Intelligo", self.url_intelligo))
+        data_json['buscadores'].append(self.crear_buscador_json("Excite", self.url_excite))
+        data_json['buscadores'].append(self.crear_buscador_json("Intelligo", self.url_intelligo))
         return data_json

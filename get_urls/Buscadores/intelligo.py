@@ -11,7 +11,8 @@ from BeautifulSoup import BeautifulSoup
 
 def generar_consulta_intelligo(consultas):
     urls = []
-    driver = webdriver.Firefox()
+    driver = webdriver.PhantomJS()
+    driver.set_script_timeout(10)
     driver.maximize_window()
     for consulta in consultas:
         driver.get("http://patentes.explora-intelligo.info/index.html?setLng=es")
@@ -48,7 +49,7 @@ def get_url(soup):
                     urlEspace = "http://worldwide.espacenet.com/" + str(url['href'])
                     urlEspace = urlEspace.replace("biblio","description")
                     urls.append(urlEspace)
-                    contador = contador + 1                    
+                    contador = contador + 1
                     if (contador > 9 ) :
                         return urls
     return urls

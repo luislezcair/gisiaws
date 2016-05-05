@@ -11,7 +11,8 @@ from BeautifulSoup import BeautifulSoup
 def generar_consulta_excite(consultas):
     urls = []
     for consulta in consultas:
-        driver = webdriver.Firefox()
+        driver = webdriver.PhantomJS()
+        driver.set_script_timeout(10)
         driver.maximize_window()
         driver.get("http://msxml.excite.com/info.xcite/search/web?fcoid=417&fcop=topnav&fpid=27&q="+str(consulta))
         try:
@@ -21,9 +22,9 @@ def generar_consulta_excite(consultas):
             soup = BeautifulSoup(ids.get_attribute('innerHTML'))
             for url in soup.findAll('a',{"class":"resultTitle"}):
                 una_url = str(url['href'])
-                una_url = una_url.split("&du=")
-                aux = una_url[1].split("&ru=");
-                url =  aux[0].replace("%3a",":").replace("%2f","/")
+                una_url = una_url.split("%26du%3d")
+                aux = una_url[1].split("%26hash");
+                url =  aux[0].replace("%253a",":").replace("%252f","/")
                 if 'https' not in url:
                     url = "http://" + str(url)
                 urls.append(url)
