@@ -29,33 +29,33 @@ class EngineSearchController(Controller):
             auxList=[]
             auxList.append(link)
             crawlerList.append(auxList)
-        return crawlerList      
-    
+        return crawlerList
+
     def remove(self,urls):
         for url in urls:
             badLink=Filter()
             if badLink.detect(url):
-                print url                
+                print url
                 urls.remove(url)
         return urls
 
-            
-    
+
+
     def start(self,searchKey):
         google=Google_Engine('Google')
         bing=Bing_Engine('Bing')
         #urlsGoogle=google.run(searchKey)
-        urlsGoogle=[]        
+        urlsGoogle=[]
         urlsBing=bing.run(searchKey)
         urls=list(set(urlsGoogle) | set(urlsBing)) #este paso filtra enlaces repetidos
         urls=self.remove(urls) #este paso elimina las redes sociales, youtube y otros
-        urls=self.toList(urls) #cambia el formato de la lista para enviar al crawler      
+        urls=self.toList(urls) #cambia el formato de la lista para enviar al crawler
         return urls
 
 
 
 class CrawlerController(Controller):
-    
+
     def __init__(self,progress):
         super(CrawlerController,self).__init__(progress)
         self.stop=False
@@ -95,7 +95,8 @@ class CrawlerController(Controller):
                     logging.warning('%s','ValueError: Invalid IPv6 URL')
                     logging.critical(u'Error crítico -- cerrando')
                     break
-                except:
+                except Exception, e:
+                    print e
                     logging.critical(u'Error crítico -- cerrando')
                     break
             else:
@@ -107,12 +108,12 @@ class CrawlerController(Controller):
             return minePackage
         else:
             self.progress.set_crawlerState('Detenido')
-            
+
 
 
 
 class MEGA_CrawlerController(Controller):#Genera aleatoriamente conexiones interdominio mas complejas que crawler_7
-    
+
     def __init__(self,progress):
         super(MEGA_CrawlerController,self).__init__(progress)
 
@@ -126,8 +127,8 @@ class MEGA_CrawlerController(Controller):#Genera aleatoriamente conexiones inter
         MEGA_cloud=m.generate(MEGA_nodos,enlaces)
         minePackage['clouds']=[Structure(MEGA_cloud,'mega.com')]
 
-        
-        
+
+
 class InformationRetrievalController(Controller):
 
     def __init__(self,progress):
@@ -139,7 +140,7 @@ class InformationRetrievalController(Controller):
 
 
 class StorageController(Controller):
-    
+
     def __init__(self,progress):
         super(StorageController,self).__init__(progress)
 
@@ -205,5 +206,3 @@ class ScraperController(Controller):
             self.scraper.start(scraperLinks,self.progress)
         else:
             self.progress.set_scrapingState('Detenido')
-        
-

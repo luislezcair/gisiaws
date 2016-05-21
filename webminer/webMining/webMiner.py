@@ -9,9 +9,9 @@ from algorithms.retrievalAlgorithms import *
 
 class WebMinerController(object):
 
-    def __init__(self,cloudSize = 20,algorithm = VectorSpaceModel("Leo"),searchKey = "knowledge of good agricultural practices"):
+    def __init__(self,cloudSize = 3,algorithm = VectorSpaceModel("Leo"),searchKey = "knowledge of good agricultural practices",id_request = 0, urls = []):
         super(WebMinerController, self).__init__()
-        self.progress=Process()
+        self.progress=Process(id_request)
         self.algorithm=algorithm
         self.searchKey=searchKey
         self.n=0
@@ -22,6 +22,8 @@ class WebMinerController(object):
         self.IRController=InformationRetrievalController(self.progress)
         self.storageController=StorageController(self.progress)
         self.scraperController=ScraperController(self.progress)
+        self.urls = urls
+
 
     def run(self):
         print self.searchKey
@@ -39,20 +41,8 @@ class WebMinerController(object):
         self.progress.set_IRState('Detenido')
         self.progress.set_scrapingState('Detenido')
 
-    def search(self):
-        if self.n==0:
-            urls=TestLinksClass()
-            return urls.getTestLinks(7)
-        else:
-            urls=self.engineSearchController.start(self.searchKey)
-            j=0
-            for l in urls:
-                j+=1
-                print j,'-',l
-            return urls
-
     def crawler(self):
-        return self.crawlerController.start(self.search(),self.cloudSize,self.searchKey)
+        return self.crawlerController.start(self.urls,self.cloudSize,self.searchKey)
 
     def MEGA_cloud(self,minePackage,enlaces):# enlaces: es la cantidad de enlaces aleatorios que se crearan
         self.MEGA_CrawlerController.start(minePackage,enlaces)
@@ -176,7 +166,7 @@ if __name__ == '__main__':
 
         # url_list tiene una lista de (orden, URL)
         url_list = request.urls.order_by(Url.orden)
-
+        
         # urls contiene la lista de urls con el formato valido del crawler
         urls = []
         for url in url_list:
@@ -184,5 +174,5 @@ if __name__ == '__main__':
             urlAux.append(url.url)
             urls.append(urlAux)
 
-        wm = WebMinerController()
+        wm = WebMinerController(id_request = request_id , urls = urls)
         wm.run()
