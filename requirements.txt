@@ -4,4 +4,4 @@ djangorestframework==3.3.2
 HTMLParser==0.0.2
 Pattern==2.6
 selenium==2.53.2
-phantomjs==2.1
+
