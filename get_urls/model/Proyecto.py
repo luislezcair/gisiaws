@@ -27,9 +27,9 @@ class Proyecto:
 
     def generarUrl(self, consulta):
         self.url_google.append(generar_consulta_google(consulta))
-        # self.url_bing.append(generar_consulta_bing(consulta))
-        # self.url_excite.append(generar_consulta_excite(consulta))
-        # self.url_intelligo.append(generar_consulta_intelligo(consulta))
+        self.url_bing.append(generar_consulta_bing(consulta))
+        self.url_excite.append(generar_consulta_excite(consulta))
+        self.url_intelligo.append(generar_consulta_intelligo(consulta))
 
     def crear_buscador_json(self, nombre_buscador, urls):
 
