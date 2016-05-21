@@ -1,5 +1,6 @@
 import threading, time
 import csv, operator
+from optparse import OptionParser
 from progress import *
 from controllers import *
 from search.testLinks import TestLinksClass #solo para hacer pruebas sin motor de busqueda
@@ -37,7 +38,7 @@ class WebMinerController(threading.Thread):
         self.progress.set_crawlerState('Detenido')
         self.progress.set_IRState('Detenido')
         self.progress.set_scrapingState('Detenido')
-    
+
     def search(self):
         if self.n==0:
             urls=TestLinksClass()
@@ -52,10 +53,10 @@ class WebMinerController(threading.Thread):
 
     def crawler(self):
         return self.crawlerController.start(self.search(),self.cloudSize,self.searchKey)
-    
+
     def MEGA_cloud(self,minePackage,enlaces):# enlaces: es la cantidad de enlaces aleatorios que se crearan
         self.MEGA_CrawlerController.start(minePackage,enlaces)
-    
+
     def informationRetrieval(self,minePackage,algorithm):
         self.IRController.start(minePackage,algorithm)
 
@@ -64,7 +65,7 @@ class WebMinerController(threading.Thread):
 
     def getProgress(self):
         return self.progress
-    
+
     def getState(self):
         print self.progress.get_progress()
 
@@ -91,8 +92,8 @@ class WebMinerController(threading.Thread):
     def retrieveClouds(self,searchKey):#Recupera una nube de la base de datos directamente relacionada con una clave de busqueda
         return self.storageController.get(searchKey)
         #self.minePackage=self.storageController.get(searchKey)
-    
-    def deleteSearch(self,searchKey):#Elimina una nube relacionada a una query de la base de datos 
+
+    def deleteSearch(self,searchKey):#Elimina una nube relacionada a una query de la base de datos
         pass
 
     def removeAllSearches(self):
@@ -157,3 +158,22 @@ class WebMinerController(threading.Thread):
 #wm.retrieveClouds(searchKey)
 #wm.csv(minePackage)
 '''----------------------------------------------------------------------------------------------- '''
+
+if __name__ == '__main__':
+    parser = OptionParser()
+    parser.add_option("-r", "--request", dest="request_id")
+
+    (options, args) = parser.parse_args()
+    request_id = options.request_id
+
+    from models import entities
+
+    with db_session:
+        request = entities.get(r for r in entities.WSRequest if r.id == request_id)
+
+        print "id_proyecto:", request.id_proyecto
+        print "nombre_directorio:", request.nombre_directorio
+
+        # url_list tiene una lista de (orden, URL)
+        url_list = request.urls.order_by(Url.orden)
+
