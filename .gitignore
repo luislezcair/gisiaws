@@ -72,3 +72,6 @@ gisiaws/settings_local.py
 .idea/uiDesigner.xml
 
 gisiaws.sqlite3
+
+#model entities del webminer
+webminer/webMining/models/entities.py
