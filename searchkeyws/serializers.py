@@ -50,7 +50,7 @@ class WSResponseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = WSResponse
-        fields = ('id_proyecto', 'buscadores')
+        fields = ('id_proyecto', 'id_request', 'buscadores')
 
     def create(self, validated_data):
         buscadores = validated_data.pop('buscadores')
@@ -71,7 +71,7 @@ class WSFilteredUrlsRequestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = WSFilteredUrlsRequest
-        fields = ('id_proyecto', 'nombre_directorio', 'urls')
+        fields = ('id_proyecto', 'nombre_directorio', 'id_request', 'urls')
 
     def create(self, validated_data):
         urls = validated_data.pop('urls')
