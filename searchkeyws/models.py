@@ -13,7 +13,7 @@ class WSResponse(models.Model):
 
 class WSFilteredUrlsRequest(models.Model):
     id_proyecto = models.IntegerField()
-    id_request = models.ForeignKey(WSRequest)
+    request = models.ForeignKey(WSRequest)
     nombre_directorio = models.CharField(max_length=50)
 
 

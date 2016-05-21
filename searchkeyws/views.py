@@ -45,17 +45,8 @@ class WSFilteredUrlsRequestViewSet(viewsets.ModelViewSet):
         r = WSFilteredUrlsRequestSerializer(data=request.data)
 
         if r.is_valid():
-            r.save()
+            request_object = r.save()
 
-            data = r.validated_data
+            subprocess.Popen(['python', 'webminer/webMining/webMiner.py', '-r' , str(request_object.request.id)])
 
-            # Si la solicitud es válida, los datos están en data
-            # Acá se podría lanzar el proceso de minería con las URLS filtradas.
-            # print("id_proyecto: ", data['id_proyecto'])
-            # print("nombre_directorio", data['nombre_directorio'])
-
-            # for url in data['urls']:
-            #     print("Orden: %d" % url['orden'])
-            #     print("URL: %s" % url['url'])
-
-        return Response(data={"status": "ok"})
+        return Response(data={ "status": "ok" } )

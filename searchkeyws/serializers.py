@@ -71,7 +71,7 @@ class WSFilteredUrlsRequestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = WSFilteredUrlsRequest
-        fields = ('id_proyecto', 'nombre_directorio', 'id_request', 'urls')
+        fields = ('id_proyecto', 'nombre_directorio', 'request', 'urls')
 
     def create(self, validated_data):
         urls = validated_data.pop('urls')
