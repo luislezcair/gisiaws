@@ -7,9 +7,9 @@ from search.testLinks import TestLinksClass #solo para hacer pruebas sin motor d
 from draw.twoDimensionalDrawing import *
 from algorithms.retrievalAlgorithms import *
 
-class WebMinerController(threading.Thread):
+class WebMinerController(object):
 
-    def __init__(self,cloudSize,algorithm,searchKey):
+    def __init__(self,cloudSize = 20,algorithm = VectorSpaceModel("Leo"),searchKey = "knowledge of good agricultural practices"):
         super(WebMinerController, self).__init__()
         self.progress=Process()
         self.algorithm=algorithm
@@ -177,3 +177,12 @@ if __name__ == '__main__':
         # url_list tiene una lista de (orden, URL)
         url_list = request.urls.order_by(Url.orden)
 
+        # urls contiene la lista de urls con el formato valido del crawler
+        urls = []
+        for url in url_list:
+            urlAux = []
+            urlAux.append(url.url)
+            urls.append(urlAux)
+
+        wm = WebMinerController()
+        wm.run()

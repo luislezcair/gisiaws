@@ -2,8 +2,8 @@
 from pony.orm import *
 
 # db = Database("sqlite", "database.sqlite", create_db=True)
-db = Database("sqlite", "../../../gisiaws.sqlite3", create_db=True)
-
+# db = Database("sqlite", "../../../gisiaws.sqlite3", create_db=True)
+db = Database('mysql', host='localhost', user='root', passwd='motocross1' , db="gisiaws")
 class Cloud(db.Entity):
     searchKey=PrimaryKey(str)
     structures=Required(str)
@@ -23,5 +23,3 @@ class Url(db.Entity):
     request_id = Required(WSRequest)
 
 db.generate_mapping(create_tables=True)
-
-

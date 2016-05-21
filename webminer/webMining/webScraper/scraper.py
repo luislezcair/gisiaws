@@ -56,7 +56,7 @@ class WebScraperClass:
 
 
 class FileGenerator:
-    
+
     def __init__(self):
         pass
 
@@ -68,12 +68,12 @@ class FileGenerator:
         contentList.append(webContent)
         document["document"]=contentList
         self.write_json(fileName,document)
-    
+
     def write_json(self,fileName, structure):
         f = open("/home/matt/clusterProject/webMining/webScraper/storage/"+fileName, mode='w')
         json.dump(structure, f, indent=2)
         f.close()
-    
+
     def html(self,content):
         pass
 
@@ -85,4 +85,4 @@ class FileGenerator:
 
 #obj=WebScraperClass()
 #obj.start(['http://www.clips.ua.ac.be/sites/default/files/ctrs-002_0.pdf'])
-#obj.start(['http://www.teaboard.gov.in/pdf/notice/Plant_Protection_Code_Ver_5_0_January_2016.pdf'])   
+#obj.start(['http://www.teaboard.gov.in/pdf/notice/Plant_Protection_Code_Ver_5_0_January_2016.pdf'])
