@@ -36,3 +36,13 @@ class FilteredUrl(models.Model):
     orden = models.IntegerField()
     url = models.CharField(max_length=255)
     request = models.ForeignKey(WSFilteredUrlsRequest, on_delete=models.CASCADE, related_name='urls')
+
+
+class WSRequestState(models.Model):
+    estado = models.CharField(max_length=1000)
+    stop = models.BooleanField()
+    request = models.ForeignKey(WSRequest, db_column='search_keys')
+
+    class Meta:
+        db_table = 'wsrequest_state'
+

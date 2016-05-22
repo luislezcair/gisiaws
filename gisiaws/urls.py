@@ -23,6 +23,7 @@ router = DefaultRouter()
 router.register(r'wsrequests', views.WSRequestViewSet)
 router.register(r'wsresponses', views.WSResponseViewSet)
 router.register(r'wsfilteredurlsrequests', views.WSFilteredUrlsRequestViewSet)
+router.register(r'wsrequeststate', views.WSRequestStateViewSet)
 
 urlpatterns = [
     url(r'^api/', include(router.urls)),

@@ -3,8 +3,8 @@
 import subprocess
 from rest_framework import viewsets
 from rest_framework.response import Response
-from searchkeyws.models import WSRequest, WSResponse, WSFilteredUrlsRequest
-from searchkeyws.serializers import WSRequestSerializer, WSResponseSerializer, WSFilteredUrlsRequestSerializer
+from searchkeyws.models import WSRequest, WSResponse, WSFilteredUrlsRequest, WSRequestState
+from searchkeyws.serializers import WSRequestSerializer, WSResponseSerializer, WSFilteredUrlsRequestSerializer, WSRequestStateSerializer
 from get_urls.search import obtener_urls
 
 class WSResponseViewSet(viewsets.ModelViewSet):
@@ -50,3 +50,9 @@ class WSFilteredUrlsRequestViewSet(viewsets.ModelViewSet):
             subprocess.Popen(['python', 'webminer/webMiner.py', '-r' , str(request_object.request.id)])
 
         return Response(data={ "status": "ok" } )
+
+
+class WSRequestStateViewSet(viewsets.ModelViewSet):
+    queryset = WSRequestState.objects.all()
+    serializer_class = WSRequestStateSerializer
+

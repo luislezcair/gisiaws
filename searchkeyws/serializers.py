@@ -81,3 +81,10 @@ class WSFilteredUrlsRequestSerializer(serializers.ModelSerializer):
             FilteredUrl.objects.create(request=request, **url)
 
         return request
+
+
+class WSRequestStateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WSRequestState
+        fields = ('estado', 'stop', 'request')
+
