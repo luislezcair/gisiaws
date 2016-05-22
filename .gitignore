@@ -73,5 +73,8 @@ gisiaws/settings_local.py
 
 gisiaws.sqlite3
 
+# vim files
+*.swp
+
 #model entities del webminer
 webminer/webMining/models/entities.py

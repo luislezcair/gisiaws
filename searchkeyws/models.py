@@ -8,10 +8,12 @@ class WSRequest(models.Model):
 
 class WSResponse(models.Model):
     id_proyecto = models.IntegerField()
+    id_request = models.ForeignKey(WSRequest)
 
 
 class WSFilteredUrlsRequest(models.Model):
     id_proyecto = models.IntegerField()
+    request = models.ForeignKey(WSRequest)
     nombre_directorio = models.CharField(max_length=50)
 
 

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import subprocess
 from rest_framework import viewsets
 from rest_framework.response import Response
 from searchkeyws.models import WSRequest, WSResponse, WSFilteredUrlsRequest
@@ -17,28 +18,23 @@ class WSRequestViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         wsrequest = WSRequestSerializer(data=request.data)
+        response = { "status": "Invalid data" }
 
         if wsrequest.is_valid():
-            wsrequest.save()
+            request_object = wsrequest.save()
 
             data = wsrequest.validated_data
             json_respuesta = obtener_urls(data)
-            # json_respuesta por ahora es un json con los enlaces de google y bing
 
-            # Si la solicitud es válida, los datos están en data
-            # Acá se podría lanzar el proceso de obtención de URLs con las claves.
-            # print("id_proyecto: ", data['id_proyecto'])
-            # print("nombre_directorio", data['nombre_directorio'])
+            # Agrega el id_request a la respuesta
+            json_respuesta['id_request'] = request_object.id
+            serializer = WSResponseSerializer(data=json_respuesta)
 
-            # for i, c in enumerate(data['claves']):
-            #     print("Clave %d: " % i, c['clave'])
-
-        serializer = WSResponseSerializer(data=json_respuesta)
-
-        if serializer.is_valid():
-            return Response(data=serializer.data)
-        else:
-            return Response(data={"status": "invalid response"})
+            if serializer.is_valid():
+                response = serializer.data
+            else:
+                response = { "status": "Invalid response from search engine" }
+        return Response(data=response)
 
 
 class WSFilteredUrlsRequestViewSet(viewsets.ModelViewSet):
@@ -49,17 +45,8 @@ class WSFilteredUrlsRequestViewSet(viewsets.ModelViewSet):
         r = WSFilteredUrlsRequestSerializer(data=request.data)
 
         if r.is_valid():
-            r.save()
+            request_object = r.save()
 
-            data = r.validated_data
+            subprocess.Popen(['python', 'webminer/webMining/webMiner.py', '-r' , str(request_object.request.id)])
 
-            # Si la solicitud es válida, los datos están en data
-            # Acá se podría lanzar el proceso de minería con las URLS filtradas.
-            # print("id_proyecto: ", data['id_proyecto'])
-            # print("nombre_directorio", data['nombre_directorio'])
-
-            # for url in data['urls']:
-            #     print("Orden: %d" % url['orden'])
-            #     print("URL: %s" % url['url'])
-
-        return Response(data={"status": "ok"})
+        return Response(data={ "status": "ok" } )
