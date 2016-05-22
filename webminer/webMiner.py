@@ -1,216 +1,178 @@
-#!/usr/bin/env python
-# -*- coding:utf-8 -*-
-import thread
-import time
-import tkMessageBox
-from Tkinter import *
-import Tkinter
-import ttk
+import threading, time
+import csv, operator
+from optparse import OptionParser
+from progress import *
+from controllers import *
+from search.testLinks import TestLinksClass #solo para hacer pruebas sin motor de busqueda
+from draw.twoDimensionalDrawing import *
+from algorithms.retrievalAlgorithms import *
 
-from webMining.algorithms.retrievalAlgorithms import *
-from webMining.webMiner import *
+class WebMinerController(object):
 
-
-class GUI:
-    def __init__(self,ventana):
-        self.query = StringVar()#query='Knowledge of Good Agricultural Practices'
-        self.webMiner=None
-        self.enfoquePonderado = WeightedApproach('WEIGHTED_APPROACH')
-        self.cRank= CRank('C-RANK')
-        self.supportVectorMachine = SupportVectorMachine('SUPPORT_VECTOR_MACHINE') 
-        self.modeloEspacioVectorial = VectorSpaceModel('VECTORIAL_SPACE_MODEL')
-        self.latentSemanticAnalysis = LatentSemanticAnalysis('LATENT_SEMANTIC_ANALYSIS')
-
-        self.algoritmo=None
-        self.progress=None
-        self.linksGoogle=IntVar()
-        self.linksBing=IntVar()
-        self.cloudSize=IntVar()
-        self.enlaces = range(11)
-        self.cloud = range(11)
-        self.colorFondoConsola="#000000"
-        self.colorLetraConsola="#FFFFFF"
-        self.progreso=StringVar()
-        self.accion=StringVar()
-        self.progresoCrawler=StringVar()
-        self.accionCrawler=StringVar()
-        self.progresoIR=StringVar()
-        self.accionIR=StringVar()
-        self.progresoScraping=StringVar()
-        self.accionScraping=StringVar()
-        self.totalCrawling=StringVar()
-        self.totalScraping=StringVar()
-        self.totalIR=StringVar()
-        self.de=StringVar()
-        self.estadoCrawling=StringVar()
-        self.estadoScraping=StringVar()
-        self.estadoIR=StringVar()
+    def __init__(self,cloudSize = 3,algorithm = VectorSpaceModel("Leo"),searchKey = "knowledge of good agricultural practices",id_request = 0, urls = [] , directorio = ""):
+        super(WebMinerController, self).__init__()
+        self.progress=Process(id_request)
+        self.algorithm=algorithm
+        self.searchKey=searchKey
+        self.n=0
+        self.cloudSize=cloudSize
+        self.engineSearchController=EngineSearchController(self.progress)
+        self.crawlerController=CrawlerController(self.progress)
+        self.MEGA_CrawlerController=MEGA_CrawlerController(self.progress)
+        self.IRController=InformationRetrievalController(self.progress)
+        self.storageController=StorageController(self.progress)
+        self.scraperController=ScraperController(self.progress)
+        self.urls = urls
 
 
-        ventana.title("Web miner   v1.0")
-        ventana.geometry("950x550")
-        self.lblConsulta = Label(ventana,text="Consulta: ").place(x=10,y=10)
-        self.txtBoxConsulta = Entry(ventana,width =100,textvariable=self.query,bg="#FFF").place(x=80,y=10)
-        self.query.set('Knowledge of Good Agricultural Practices')
-        self.boton = Button(ventana, text="Ejecutar",command=self.comenzarProceso)
-        self.boton.place(x=80,y=35)
+    def run(self):
+        print self.searchKey
+        print self.cloudSize
+        print self.algorithm.getName()
+        self.minePackage=self.crawler()
+        if not self.progress.get_stop():
+            self.informationRetrieval(self.minePackage,self.algorithm)
+        if not self.progress.get_stop():
+            self.scraper(self.minePackage)
 
-        self.botonDetener = Button(ventana, text="Detener",command=self.detenerProceso)
-        self.botonDetener.place(x=80,y=65)
-        
-        self.botonEstado = Button(ventana, text="Estado",command=self.verEstado)
-        self.botonEstado.place(x=80,y=500)
+    def stopWebMiner(self):
+        self.progress.set_stop(True)
+        self.progress.set_crawlerState('Detenido')
+        self.progress.set_IRState('Detenido')
+        self.progress.set_scrapingState('Detenido')
 
-        self.botonCerrar = Button(ventana, text="Cerrar programa",command=self.cerrarPrograma)
-        self.botonCerrar.place(x=800,y=500)        
+    def crawler(self):
+        return self.crawlerController.start(self.urls,self.cloudSize,self.searchKey)
 
-        self.lblEnlacesGoogle = Label(ventana,text="Links Google:").place(x=210,y=40)
-        self.sBoxEnlacesGoogle = Spinbox(ventana,width=3,value=self.enlaces,textvariable=self.linksGoogle).place(x=293,y=40)
-        self.lblEnlacesBing = Label(ventana,text="Links Bing:").place(x=360,y=40)
-        self.sBoxEnlacesBing = Spinbox(ventana,width=3,value=self.enlaces,textvariable=self.linksBing).place(x=430,y=40)
+    def MEGA_cloud(self,minePackage,enlaces):# enlaces: es la cantidad de enlaces aleatorios que se crearan
+        self.MEGA_CrawlerController.start(minePackage,enlaces)
 
-        self.lblCloudSize = Label(ventana,text="cantidad de enlaces:").place(x=500,y=40)
-        self.sBoxCloudSize = Spinbox(ventana,width=3,value=self.cloud,textvariable=self.cloudSize).place(x=630,y=40)
+    def informationRetrieval(self,minePackage,algorithm):
+        self.IRController.start(minePackage,algorithm)
 
-        self.lblTitulo = Label(ventana,text="Algoritmos RI:").place(x=700,y=100)
-        self.radioBtnEnfoquePonderado = Radiobutton(ventana,text="Enfoque poderado",value=1,command=self.asignarEnfoquePonderado)
-        self.radioBtnEnfoquePonderado.place(x=700,y=140)
-        self.radioBtnCrank =  Radiobutton(ventana,text="C-Rank",value=2,command=self.asignarCrank)
-        self.radioBtnCrank.place(x=700,y=160)
-        self.radioBtnSvm =  Radiobutton(ventana,text="Support Vector Machine",value=3,command=self.asignarSupportVectorMachine)
-        self.radioBtnSvm.place(x=700,y=180)
-        self.radioBtnVectorial = Radiobutton(ventana,text="Vectorial",value=4,command=self.asignarVectorial)
-        self.radioBtnVectorial.place(x=700,y=200)
-        self.radioBtnSemantica = Radiobutton(ventana,text="Latent semantic analysis",value=6,command=self.asignarSemanticAnalysis)
-        self.radioBtnSemantica.place(x=700,y=220)
+    def scraper(self,minePackage):
+        self.scraperController.start(minePackage)
 
-        self.cajaTexto = Text(ventana, width = 75, height =10,bg=self.colorFondoConsola,fg=self.colorLetraConsola)
-        self.cajaTexto.place(x=80,y=100)
+    def getProgress(self):
+        return self.progress
 
-        self.porcentaje=Label(ventana,text="",textvariable=self.progreso).place(x=147,y=280)
-        self.proceso=Label(ventana,text="",textvariable=self.accion).place(x=80,y=280)
-        self.progressBar=ttk.Progressbar(ventana,orient='horizontal',mode='determinate',length=530)
-        self.progressBar.pack(expand=False, fill=Tkinter.BOTH, side=Tkinter.BOTTOM)
-        self.progressBar.place(x="80",y="300")
-        self.l1=Label(ventana,text="|").place(x=79,y=320)
-        self.l2=Label(ventana,text="0%").place(x=79,y=340)
-        self.l3=Label(ventana,text="|").place(x=340,y=320)
-        self.l4=Label(ventana,text="50%").place(x=333,y=340)
-        self.l5=Label(ventana,text="|").place(x=604,y=320)
-        self.l6=Label(ventana,text="100%").place(x=591,y=340)
+    def getState(self):
+        print self.progress.get_progress()
 
-        self.crawler=Label(ventana,text="- Exploración de enlaces:",textvariable=self.accionCrawler).place(x=80,y=385)
-        self.porcentajeCrawler=Label(ventana,text="0",textvariable=self.progresoCrawler).place(x=300,y=385)
-        self.l7=Label(ventana,text="de",textvariable=self.de).place(x=400,y=385)
-        self.l10=Label(ventana,text="100",textvariable=self.totalCrawling).place(x=450,y=385)
-        self.l13=Label(ventana,text="",textvariable=self.estadoCrawling).place(x=500,y=385)
+    ##### FUNCIONES ADICIONALES ######
+    def printClouds(self,minePackage):#Imprime nubes en consola
+        clouds=minePackage['clouds']
+        print '-'*100
+        print 'query:',minePackage['searchKey']
+        for cloud in clouds:
+            print cloud.domain
+            print cloud
+            print cloud.graph.nodes(True)
 
-        self.informationRetrieval=Label(ventana,text="- Ranking de documentos:",textvariable=self.accionIR).place(x=80,y=420)
-        self.porcentajeIR=Label(ventana,text="0",textvariable=self.progresoIR).place(x=300,y=420)
-        self.l8=Label(ventana,text="de",textvariable=self.de).place(x=400,y=420)
-        self.l11=Label(ventana,text="100",textvariable=self.totalIR).place(x=450,y=420)
-        self.l14=Label(ventana,text="",textvariable=self.estadoIR).place(x=500,y=420)
+    def drawClouds(self,minePackage): #Visulalizacion grafica de las nubes de enlaces
+        clouds=minePackage['clouds']
+        draw=DrawCloud()
+        draw.plotFunction(clouds)
+        #for cloud in clouds:
+            #nx.draw(cloud.structure,node_size=300,alpha=0.8,node_color="cyan")
 
-        self.scraping=Label(ventana,text="- Extracción de contenido:",textvariable=self.accionScraping).place(x=80,y=455)
-        self.porcentajeScraping=Label(ventana,text="0",textvariable=self.progresoScraping).place(x=300,y=455)
-        self.l9=Label(ventana,text="de",textvariable=self.de).place(x=400,y=455)
-        self.l12=Label(ventana,text="100",textvariable=self.totalScraping).place(x=450,y=455)
-        self.l15=Label(ventana,text="",textvariable=self.estadoScraping).place(x=500,y=455)
+    def saveClouds(self,minePackage):#Guarda en disco local las nubes contenidas en minaPackage despues del crawler
+        self.storageController.save(minePackage)
 
+    def retrieveClouds(self,searchKey):#Recupera una nube de la base de datos directamente relacionada con una clave de busqueda
+        return self.storageController.get(searchKey)
+        #self.minePackage=self.storageController.get(searchKey)
 
-    def detenerProceso(self):
-        self.webMiner.stopWebMiner()
-    
-    def verEstado(self):
-        self.webMiner.getState()
-    
-    def cerrarPrograma(self):
-        thread.exit_thread()
+    def deleteSearch(self,searchKey):#Elimina una nube relacionada a una query de la base de datos
+        pass
 
-    def comenzarProceso(self):
-        if self.algoritmo!=None:
-            self.cajaTexto.config(state=NORMAL)
-            self.cajaTexto.delete(1.0,END) 
-            self.cajaTexto.insert(INSERT,"RECUPERACION DE INFORMACION WEB")
-            self.cajaTexto.insert(INSERT,"\n--------------------------------------------------------------------------")
-            self.cajaTexto.insert(INSERT,"\nConsulta: "+self.query.get())
-            self.cajaTexto.insert(INSERT,"\nAlgoritmo: " +self.algoritmo.getName())
-            self.cajaTexto.insert(INSERT,"\nLinks Google: "+str(self.linksGoogle.get()))
-            self.cajaTexto.insert(INSERT,"\nLinks Bing: "+str(self.linksBing.get()))
-            self.cajaTexto.insert(INSERT,"\nTotal de enlaces por URL: "+str(self.cloudSize.get()))
-            self.cajaTexto.config(state=DISABLED)
-            self.webMiner=WebMinerController(self.cloudSize.get(),self.algoritmo,self.query.get())
-            self.progress=self.webMiner.getProgress()
-            #self.webMiner.daemon=True            
-            self.webMiner.start()
-            thread.start_new_thread(self.barraProgreso,("",))
-            thread.start_new_thread(self.crawlingProgress,("",))
-            thread.start_new_thread(self.retrievalProgress,("",))
-            thread.start_new_thread(self.scrapingProgress,("",))
-        else:
-            tkMessageBox.showwarning("ATENCION","Debe seleccionar un algoritmo !")
+    def removeAllSearches(self):
+        self.storageController.removeAll()
 
-    def asignarEnfoquePonderado(self):self.algoritmo=self.enfoquePonderado
-    def asignarCrank(self):self.algoritmo=self.cRank
-    def asignarSupportVectorMachine(self):self.algoritmo=self.supportVectorMachine
-    def asignarVectorial(self):self.algoritmo=self.modeloEspacioVectorial
-    def asignarSemanticAnalysis(self):self.algoritmo=self.latentSemanticAnalysis
+    def csv(self,minePackage):#convierte una nube de enlaces a formato csv para poder visualizarla con el programa Gephi
+        clouds=minePackage['clouds']
+        csvNodes=open('/home/matt/clusterProject/webMining/csv/nodes.csv','w')
+        csvEdges=open('/home/matt/clusterProject/webMining/csv/edges.csv','w')
+        csvNodes=csv.writer(csvNodes,delimiter=';')
+        csvEdges=csv.writer(csvEdges,delimiter=';')
+        print('Escribiendo archivo "salida.csv"...')
+        csvNodes.writerow(['Label','Id','Weight'])
+        csvEdges.writerow(['Source','Target','Type'])
 
-    def barraProgreso(self,var):
-        #print "barra progresooo "
-        self.boton.config(state=DISABLED)
-	self.accion.set("Proceso:")
-	barra=0
-	while barra<=99:
-            if barra!=99:
-                time.sleep(0.01)
-		self.progreso.set(str(barra)+'%')
-		self.progressBar.step(1)
-	    else:
-		#time.sleep(0.5)
-		self.progreso.set('100%')
-		self.progressBar.step(0.99)
-	    barra+=1
-	self.boton.config(state=NORMAL)
-	#print "Finalizado en "+str(barra)+"%"
- 
-    def crawlingProgress(self,var):
-        self.accionCrawler.set('- Exploración de enlaces:')
-        self.de.set('de')
-        self.estadoCrawling.set(self.progress.get_crawlerState())
-        self.totalCrawling.set(self.progress.get_totalCrawling())
-        total=self.progress.get_totalCrawling()
-        progreso=self.progress.get_crawlerProgress()
-        while progreso<=total:
-            self.estadoCrawling.set(self.progress.get_crawlerState())
-            self.progresoCrawler.set(str(self.progress.get_crawlerProgress()))
-            time.sleep(1)
-            progreso=self.progress.get_crawlerProgress()
+        for cloud in clouds:
+            for n in cloud.graph.nodes():
+                label=cloud.graph.node[n]['link']
+                ID=cloud.graph.node[n]['ID']
+                weight=cloud.graph.node[n]['weight']
+                csvNodes.writerow([label,ID,weight])
+                G=cloud.graph
+                succ=G.successors(cloud.graph.node[n]['link'])
+                for s in succ:
+                    nod=cloud.graph.node[s]
+                    source=ID
+                    target=cloud.graph.node[s]['ID']
+                    csvEdges.writerow([source,target,'Directed'])
 
+    def report(self,minePackage):
+        clouds=minePackage['clouds']
+        visited=0
+        for cloud in clouds:
+           visited+=len(cloud.graph)
+        totalLinks=len(self.search())*self.cloudSize
+        print "  Total links.....", totalLinks
+        print "Visited links.....", visited
+        print "Missing links.....", totalLinks-visited
 
-    def retrievalProgress(self,var):
-        self.accionIR.set('- Ranking de documentos:')
-        self.totalIR.set(self.progress.get_totalIR())
-        progreso=self.progress.get_IRProgress()
-        total=self.progress.get_totalIR()
-        while progreso<=total:
-            total=self.progress.get_totalIR()
-            self.progresoIR.set(str(self.progress.get_IRProgress()))
-            self.estadoIR.set(self.progress.get_IRState())
-            self.totalIR.set(self.progress.get_totalIR())
-            time.sleep(0.7)
-            progreso=self.progress.get_IRProgress()
+'''------------------------------------ADMIN------------------------------------------------------ '''
+#Inicializar:
+#wm=WebMinerController()
 
-    
-    def scrapingProgress(self,var):
-        self.accionScraping.set('- Extacción de contenido:')
-        while True:
-            self.estadoScraping.set(self.progress.get_scrapingState())
-            self.progresoScraping.set(str(self.progress.get_scrapingProgress()))
-            self.totalScraping.set(self.progress.get_totalScraping())
-            time.sleep(0.5)
+#RUN SEARCH ENGINES:
+#wm.search()
 
-root=Tk()
-my_gui=GUI(root)
-root.mainloop()
+#CRAWLER AND SCRAPER:
+#minePackage=wm.crawler()
+#wm.MEGA_cloud(minePackage,0)
+#wm.scraper(minePackage)
 
+#INFORMATION RETRIEVAL ALGORITHMS:
+#wm.informationRetrieval(minePackage,wm.algorithm)
+
+#PRINT AND DRAW:
+#wm.printClouds(minePackage)
+#wm.drawClouds(minePackage)
+#wm.report(minePackage)
+
+#GUARDAR Y RECUPERAR CLOUDS:
+#wm.saveClouds(minePackage)
+#wm.retrieveClouds(searchKey)
+#wm.csv(minePackage)
+'''----------------------------------------------------------------------------------------------- '''
+
+if __name__ == '__main__':
+    parser = OptionParser()
+    parser.add_option("-r", "--request", dest="request_id")
+
+    (options, args) = parser.parse_args()
+    request_id = options.request_id
+
+    from models import entities
+
+    with db_session:
+        request = entities.get(r for r in entities.WSRequest if r.request_id == request_id)
+
+        print "id_proyecto:", request.id_proyecto
+        print "nombre_directorio:", request.nombre_directorio
+
+        # url_list tiene una lista de (orden, URL)
+        url_list = request.urls.order_by(Url.orden)
+
+        # urls contiene la lista de urls con el formato valido del crawler
+        urls = []
+        for url in url_list:
+            urlAux = []
+            urlAux.append(url.url)
+            urls.append(urlAux)
+
+        wm = WebMinerController(id_request = request_id , urls = urls , directorio = request.nombre_directorio)
+        wm.run()

@@ -1,9 +1,15 @@
 ### Definir entidades y crear la base de datos en SQLite
 from pony.orm import *
+from db_local import *
 
-# db = Database("sqlite", "database.sqlite", create_db=True)
-# db = Database("sqlite", "../../../gisiaws.sqlite3", create_db=True)
-db = Database('mysql', host='localhost', user='root', passwd='motocross1' , db="gisiaws")
+
+db = getDb()
+# crear archivo db_local con el siguiente codigo
+# def getDb():
+#     db = Database('mysql', host='', user='', passwd='' , db="") -> para mysql
+#     db = Database("sqlite", "database.sqlite", create_db=True) -> para sqlite
+#     return db
+
 class Cloud(db.Entity):
     searchKey=PrimaryKey(str)
     structures=Required(str)
@@ -13,8 +19,8 @@ class WSRequest(db.Entity):
     id = PrimaryKey(int, auto=False)
     id_proyecto = Required(int)
     nombre_directorio = Required(str)
+    request_id = Required(int)
     urls = Set("Url")
-    ws_request = Optional("WsRequestState")
 
 class Url(db.Entity):
     _table_ = "searchkeyws_filteredurl"
@@ -28,7 +34,13 @@ class WsRequestState(db.Entity):
     id = PrimaryKey(int, auto=True)
     estado = Required(str)
     stop = Required(bool)
-    search_keys = Required("WSRequest")
+    search_keys = Required("Searchkeys_wsrequest")
 
+class Searchkeys_wsrequest(db.Entity):
+    _table_ = "searchkeyws_wsrequest"
+    id = PrimaryKey(int)
+    id_proyecto = Required(int)
+    nombre_directorio = Required(str)
+    ws_request = Optional("WsRequestState")
 
 db.generate_mapping(create_tables=True)

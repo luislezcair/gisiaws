@@ -70,7 +70,8 @@ class FileGenerator:
         self.write_json(fileName,document)
 
     def write_json(self,fileName, structure):
-        f = open("/home/matt/clusterProject/webMining/webScraper/storage/"+fileName, mode='w')
+        directorio = "/var/www/html/gisiaws/webminer/webMining/webScraper/storage"
+        f = open(directorio+fileName, mode='w')
         json.dump(structure, f, indent=2)
         f.close()
 
