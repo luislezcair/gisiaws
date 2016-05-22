@@ -4,6 +4,7 @@ from db_local import *
 
 
 db = getDb()
+# from pony.orm import *
 # crear archivo db_local con el siguiente codigo
 # def getDb():
 #     db = Database('mysql', host='', user='', passwd='' , db="") -> para mysql
