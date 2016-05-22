@@ -77,4 +77,4 @@ gisiaws.sqlite3
 *.swp
 
 #model entities del webminer
-webminer/webMining/models/db_local.py
+webminer/models/db_local.py
