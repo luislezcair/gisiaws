@@ -76,5 +76,6 @@ gisiaws.sqlite3
 # vim files
 *.swp
 
-#model entities del webminer
+# model entities del webminer
 webminer/models/db_local.py
+temp.pdf
