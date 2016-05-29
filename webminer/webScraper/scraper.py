@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-#import os
+import os
 import commands
 import json
 from pattern.web import URL, plaintext, MIMETYPE_PDF
@@ -32,7 +32,7 @@ class WebScraperClass:
         txtContent=commands.getoutput('pdf2txt.py temp.pdf')
         return txtContent
 
-    def start(self,scraperLinks,progress):
+    def start(self,scraperLinks,progress,directorio,id_request):
         step=0
         progress.set_totalScraping(len(scraperLinks))
         progress.set_scrapingState('Ejecutando')
@@ -41,12 +41,13 @@ class WebScraperClass:
                 step+=1
                 progress.set_scrapingProgress(step)
                 url=URL(link)
-                fileName='file_'+str(step)+'.json'
+                # fileName='file_'+str(step)+'.json'
+                fileName = str(id_request)+"-"+str(step)+"@"+url.domain+'.json'
                 print '->'+fileName
                 if url.mimetype in MIMETYPE_PDF:
-                    self.fileGenerator.json(fileName,self.pdfToText(link))
+                    self.fileGenerator.json(fileName,self.pdfToText(link),directorio)
                 else:
-                    self.fileGenerator.json(fileName,self.htmlToText(link))
+                    self.fileGenerator.json(fileName,self.htmlToText(link),directorio)
             else:
                 progress.set_scrapingState('Detenido')
                 print 'Detenido'
@@ -60,18 +61,19 @@ class FileGenerator:
     def __init__(self):
         pass
 
-    def json(self,fileName,content):
+    def json(self,fileName,content,directorio):
         document={}
         webContent={}
         contentList=[]
         webContent["content"]=content
         contentList.append(webContent)
         document["document"]=contentList
-        self.write_json(fileName,document)
+        self.write_json(fileName,document,directorio)
 
-    def write_json(self,fileName, structure):
-        directorio = "/var/www/html/gisiaws/webminer/webMining/webScraper/storage"
-        f = open(directorio+fileName, mode='w')
+    def write_json(self,fileName, structure , directorio):
+        ruta = "/var/www/html/gisiaws/webminer/webScraper/storage/"
+        self.crearDirectorio(ruta,directorio)
+        f = open(ruta+directorio+"/"+fileName, mode='w')
         json.dump(structure, f, indent=2)
         f.close()
 
@@ -83,6 +85,11 @@ class FileGenerator:
 
     def xml(self,content):
         pass
+
+    def crearDirectorio(self,ruta,nombre_directorio):
+        newpath = ruta + nombre_directorio
+        if not os.path.exists(newpath):
+            os.makedirs(newpath)
 
 #obj=WebScraperClass()
 #obj.start(['http://www.clips.ua.ac.be/sites/default/files/ctrs-002_0.pdf'])

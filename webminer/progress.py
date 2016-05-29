@@ -26,7 +26,8 @@ class Process:
         with db_session:
             estado = WsRequestState(estado = unicode(self.state), stop = False , search_keys = id_request)
             commit()
-
+        # para inicializar el estado en la bd
+        self.get_progress()
 
     #web crawling process, getters() and setters()
     def set_totalCrawling(self,quantity):
@@ -35,10 +36,7 @@ class Process:
         #print self.totalCrawling
     def set_crawlerProgress(self,progress):
         self.crawlerProgress=progress
-        with db_session:
-            estadoActual = WsRequestState.get(search_keys = self.id_request)
-            estadoActual.estado = unicode(self.get_progress())
-            commit()
+
         #print self.crawlerProgress
     def set_crawlerState(self,state):
         self.crawlerState=state
@@ -56,10 +54,7 @@ class Process:
         #print self.totalScraping
     def set_scrapingProgress(self,progress):
         self.scraperProgress=progress
-        with db_session:
-            estadoActual = WsRequestState.get(search_keys = self.id_request)
-            estadoActual.estado = unicode(self.get_progress())
-            commit()
+
         #print self.scraperProgress
     def set_scrapingState(self,state):
         self.scraperState=state
@@ -76,10 +71,7 @@ class Process:
         self.totalIR=quantity
     def set_IRProgress(self,progress):
         self.IRProgress=progress
-        with db_session:
-            estadoActual = WsRequestState.get(search_keys = self.id_request)
-            estadoActual.estado = unicode(self.get_progress())
-            commit()
+
     def set_IRState(self,state):
         self.IRState=state
     def get_totalIR(self):
@@ -100,4 +92,11 @@ class Process:
         self.state['exploracion']=self.crawlerState+'||'+str(self.crawlerProgress)+'/'+str(self.totalCrawling)
         self.state['ranking']=self.IRState+'||'+str(self.IRProgress)+'/'+str(self.totalIR)
         self.state['extraccion']=self.scraperState+'||'+str(self.scraperProgress)+'/'+str(self.totalScraping)
+
+        with db_session:
+            estadoActual = WsRequestState.get(search_keys = self.id_request)
+            estadoActual.estado = unicode(self.state)
+            if estadoActual.stop:
+                self.set_stop(True)
+            commit()
         return self.state

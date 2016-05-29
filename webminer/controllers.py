@@ -189,7 +189,7 @@ class ScraperController(Controller):
         super(ScraperController,self).__init__(progress)
         self.scraper=WebScraperClass()
 
-    def start(self,minePackage):
+    def start(self,minePackage,directorio,id_request):
         scraperLinks=[]
         clouds=minePackage['clouds']
         for cloud in clouds:
@@ -203,6 +203,6 @@ class ScraperController(Controller):
             else:
                 break
         if not self.progress.get_stop():
-            self.scraper.start(scraperLinks,self.progress)
+            self.scraper.start(scraperLinks,self.progress,directorio,id_request)
         else:
             self.progress.set_scrapingState('Detenido')

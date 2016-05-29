@@ -9,12 +9,13 @@ from algorithms.retrievalAlgorithms import *
 
 class WebMinerController(object):
 
-    def __init__(self,cloudSize = 3,algorithm = VectorSpaceModel("Leo"),searchKey = "knowledge of good agricultural practices",id_request = 0, urls = [] , directorio = ""):
+    def __init__(self,cloudSize = 10,algorithm = VectorSpaceModel("VectorSpaceModel"),searchKey = "knowledge of good agricultural practices",id_request = 0, urls = [] , directorio = ""):
         super(WebMinerController, self).__init__()
         self.progress=Process(id_request)
         self.algorithm=algorithm
         self.searchKey=searchKey
         self.n=0
+        self.directorio = directorio
         self.cloudSize=cloudSize
         self.engineSearchController=EngineSearchController(self.progress)
         self.crawlerController=CrawlerController(self.progress)
@@ -23,6 +24,7 @@ class WebMinerController(object):
         self.storageController=StorageController(self.progress)
         self.scraperController=ScraperController(self.progress)
         self.urls = urls
+        self.id_request = id_request
 
 
     def run(self):
@@ -51,7 +53,7 @@ class WebMinerController(object):
         self.IRController.start(minePackage,algorithm)
 
     def scraper(self,minePackage):
-        self.scraperController.start(minePackage)
+        self.scraperController.start(minePackage,self.directorio,self.id_request)
 
     def getProgress(self):
         return self.progress

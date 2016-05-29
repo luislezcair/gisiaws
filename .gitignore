@@ -79,3 +79,4 @@ gisiaws.sqlite3
 # model entities del webminer
 webminer/models/db_local.py
 temp.pdf
+webminer/webScraper/storage
