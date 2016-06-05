@@ -47,9 +47,9 @@ class WebScraperClass:
                 fileName = str(id_request)+"-"+str(step)+"@"+url.domain+'.json'
                 print '->'+fileName
                 if url.mimetype in MIMETYPE_PDF:
-                    self.fileGenerator.json(fileName,self.pdfToText(link['link']),link['weight'],directorio)
+                    self.fileGenerator.json(fileName,self.pdfToText(link['link']),link['link'],link['weight'],directorio)
                 else:
-                    self.fileGenerator.json(fileName,self.htmlToText(link['link']),link['weight'],directorio)
+                    self.fileGenerator.json(fileName,self.htmlToText(link['link']),link['link'],link['weight'],directorio)
             else:
                 progress.set_scrapingState('Detenido')
                 print 'Detenido'
@@ -63,10 +63,11 @@ class FileGenerator:
     def __init__(self):
         pass
 
-    def json(self,fileName,content,weight,directorio):
+    def json(self,fileName,content,link,weight,directorio):
         document={}
         webContent={}
         contentList=[]
+        webContent['url'] = link
         webContent['weight'] = weight
         webContent["content"]=content
         contentList.append(webContent)
