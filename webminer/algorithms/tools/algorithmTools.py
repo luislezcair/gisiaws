@@ -15,9 +15,9 @@ class QueryProcessor:
     def processor(self,minePackage):
         s = Sentence(parse(minePackage['searchKey']))
         minePackage['searchKey']=count(words(s), stemmer=PORTER)
-            
-                    
-                
+
+
+
 class UrlToPlainText:
     def __init__(self):
         pass
@@ -45,7 +45,7 @@ class MethodData:
         self.data=data
     def getData(self):
         return self.data
-        
+
 
 
 class Tokenizer:
@@ -64,7 +64,7 @@ class Tokenizer:
 
 
 
-class VectorSimilarity:  
+class VectorSimilarity:
     def __init__(self):
         pass
     def calculate(self,minePackage,progress):
@@ -133,7 +133,7 @@ class DomainDictionary:
     domainDictionary=str()
     def __init__(self,f):
         self.f=f
-        self.domainDictionary=self.f.read() 
+        self.domainDictionary=self.f.read()
     def validate(self,word=''):
         return word in self.domainDictionary
 #obj=DomainDictionary()
@@ -170,7 +170,7 @@ class WeightingProccess:
                             an+=tf
                 cloud.graph.node[n]['weight']=((ac*alpha)+(ap*beta)+(an*gamma))/(ac+ap+an)
                 #print cloud.graph.node[n]['weight']
-        
+
 #urlContent=UrlToPlainText()
 #pageContent=urlContent.plainTextConverter('http://www.clips.ua.ac.be/sites/default/files/ctrs-002_0.pdf')
 #pageContent=urlContent.plainTextConverter('http://www.clips.ua.ac.be/pages/pattern-vector')

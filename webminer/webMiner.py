@@ -9,7 +9,7 @@ from algorithms.retrievalAlgorithms import *
 
 class WebMinerController(object):
 
-    def __init__(self,cloudSize = 10,algorithm = VectorSpaceModel("VectorSpaceModel"),searchKey = "knowledge of good agricultural practices",id_request = 0, urls = [] , directorio = ""):
+    def __init__(self,cloudSize = 10,algorithm = VectorSpaceModel("VectorSpaceModel"),searchKey = "tea argentina",id_request = 0, urls = [] , directorio = ""):
         super(WebMinerController, self).__init__()
         self.progress=Process(id_request)
         self.algorithm=algorithm
@@ -165,6 +165,11 @@ if __name__ == '__main__':
 
         print "id_proyecto:", request.id_proyecto
         print "nombre_directorio:", request.nombre_directorio
+
+        # claves = entities.get(a for a in entities.Searchkeys_searchkey if a.request_id == request_id)
+        claves = Searchkeys_searchkey.select(lambda p: p.request_id == request_id)
+        for una_clave in claves:
+            print una_clave.clave
 
         # url_list tiene una lista de (orden, URL)
         url_list = request.urls.order_by(Url.orden)

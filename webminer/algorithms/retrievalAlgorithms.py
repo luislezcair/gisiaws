@@ -1,6 +1,10 @@
 #import time
 # -*- coding: utf-8 -*-
-from tools.algorithmTools import *
+from tools.algorithmTools import * #Herramientas de calculo para algoritmo booleando y modelo espacio vectorial
+#from tools.okapiTools.okapi import * #Heramientas de calculo para algoritmo okapi
+#from tools.crankTools.crank import * #Heramientas de calculo para algoritmo Crank
+#from tools.svmTools.svm import * #Herramientas de calculo para algoritmo basado en maquinas de vectores de soporte
+#from tools.lsaTools.lsa import * #Herramientas de calculo para algoritmo de analisis semantico latente
 
 #Inicio
 class Algorithm(object):
@@ -27,25 +31,60 @@ class Algorithm(object):
 
     def getName(self):
         return self.name
-        
+
     def vectorSim(self):
         return VectorSimilarity()
-    
+
     def weighting(self):
         return WeightingProccess()
-    
+
+    def okapi_BM25(self):
+        return BM25()
+
+    def ranking(self,minePackage,progress):
+        clouds=minePackage['clouds']
+        weightedList=dict()
+        if not progress.get_stop():
+            for cloud in clouds:
+                if not progress.get_stop():
+                    for n in cloud.graph.nodes():
+                        weightedList[cloud.graph.node[n]['link']]=cloud.graph.node[n]['weight']
+                else:
+                    progress.set_IRState('Detenido')
+                    break
+            if not progress.get_stop():
+                self.printRanking(weightedList,progress)
+                progress.set_IRState('Finalizado')##Actualiza el estado del proceso
+        else:
+            progress.set_IRState('Detenido')
+
+    def printRanking(self,weightedList,progress):
+        print 'INFORMATION RETRIEVAL ALGORITHM: Vector Space Model'
+        print
+        print 'Ranking:'
+        print
+        ranking=sorted(weightedList.items(),key = lambda x:x[1])
+        i=len(ranking)-1
+        elem=-1
+        f=1
+        while i>=0:
+            if not progress.get_stop():
+                print f,'|||',ranking[elem][0],'||| W=',ranking[elem][1]#imprime en orden descendente
+                elem-=1
+                i-=1
+                f+=1
+            else:
+                progress.set_IRState('Detenido')
+                break
+
     def __str__(self):
         return self.name
 
 
 
-'''#### Booleano ################################################################
-FUNCIONAMIENTO: El algoritmo booleano no hace ranking, solo convierte los documentos a una tabla binaria, luego se extraen documentos que satisfacen la expresion booleana.
-                1.tokenizar todos los enlaces=Tokenizer+stemming+stop_words+TF
-                2.filtrar documentos usando expresiones booleanas tipo: (t1 AND t2)OR t4 ...
-'''
+'''#### Booleano ################################################################'''
 class Boolean(Algorithm):
-    
+
     def __init__(self,name):
         super(Boolean,self).__init__(name)
 
@@ -79,19 +118,16 @@ class Boolean(Algorithm):
 
 
 
-'''#### Booleano Extendido #####################################################
-FUNCIONAMIENTO: El metodo booleano extendido se basa en la idea de que cuanto mayor es la frecuencia de
-                un termino en el documento, mayor sera la relevancia que dicho termino le aporte al documento
-'''
+'''#### Booleano Extendido #####################################################'''
 class ExtendedBoolean(Algorithm):
 
     def __init__(self,name):
         super(ExtendedBoolean,self).__init__(name)
-    
+
     def run(self,minePackage):
         self.tokenizer(minePackage)
         self.booleanFilter(minePackage)
-    
+
     def booleanFilter(self,minePackage):
         weightedList={}
         query='python','support','express','sign','zero','mathemat','ceil'
@@ -102,8 +138,8 @@ class ExtendedBoolean(Algorithm):
                 document=methodData.getData()
                 #print len(document)
                 weightedList[cloud.graph.node[n]['link']]=self.extendedOperator(document,query)
-        self.ranking(weightedList)
-    
+        self.booleanRanking(weightedList)
+
     def extendedOperator(self,document,query):
         tf=[]
         for w in query:
@@ -112,8 +148,8 @@ class ExtendedBoolean(Algorithm):
             else:
                 tf.append(0)
         return tf[0]*tf[1]*tf[2]+(tf[3]+tf[4]+tf[5]+tf[6])
-    
-    def ranking(self,weightedList):
+
+    def booleanRanking(self,weightedList):
         print 'INFORMATION RETRIEVAL ALGORITHM: Extended boolean method'
         print
         print 'Ranking:'
@@ -130,142 +166,87 @@ class ExtendedBoolean(Algorithm):
             f+=1
 
 
-'''#### Modelo de espacio vectorial #####################################################'''
-'''FUNCIONAMIENTO: Cada documento se representa como un vector en el espacio n-dimensional. La clave de
-                   búsqueda también se representa de la misma manera. Luego, el cálculo de relevancia
-                   consiste en medir la distancia de cada vector-documento al vector consulta. Cuanto más
-                   próximo esta un vector-documento del vector-consulta se lo considera de mayor relevancia.'''
-class VectorSpaceModel(Algorithm):
 
+'''#### Modelo de espacio vectorial #####################################################'''
+class VectorSpaceModel(Algorithm):
     def __init__(self,name):
         super(VectorSpaceModel,self).__init__(name)
-
     def run(self,minePackage,progress):#recibe como parametro una referencia de la clase progress
         weightedList={}
         query=minePackage['searchKey']
         vectorSimilarity=self.vectorSim()
-        vectorSimilarity.calculate(minePackage,progress)#como parametro le pasa el objeto que registra los progresos del algoritmo
-        clouds=minePackage['clouds']
-        if not progress.get_stop():
-            for cloud in clouds:
-                if not progress.get_stop():
-                    for n in cloud.graph.nodes():
-                        weightedList[cloud.graph.node[n]['link']]=cloud.graph.node[n]['weight']
-                else:
-                    progress.set_IRState('Detenido')
-                    break
-            if not progress.get_stop():
-                self.ranking(weightedList,progress)
-                progress.set_IRState('Finalizado')##Actualiza el estado del proceso
-        else:
-            progress.set_IRState('Detenido')
-    
-    ''' FUNCION RANKING '''
-    def ranking(self,weightedList,progress):
-        print 'INFORMATION RETRIEVAL ALGORITHM: Vector Space Model'
-        print
-        print 'Ranking:'
-        print
-        ranking=sorted(weightedList.items(),key = lambda x:x[1])
-        #Orden Descendente:
-        i=len(ranking)-1
-        elem=-1
-        f=1
-        while i>=0:
-            if not progress.get_stop():
-                print f,'|||',ranking[elem][0],'||| W=',ranking[elem][1]
-                elem-=1
-                i-=1
-                f+=1
-            else:
-                progress.set_IRState('Detenido')
-                break
+        vectorSimilarity.calculate(minePackage,progress)
+        self.ranking(minePackage,progress)
 
-
-
-'''#### Documento Vector #####################################################'''
+'''#### Documento Vector #################################################################'''
 class DocumentVector(Algorithm):
-    
     def __init__(self,name):
         super(DocumentVector,self).__init__(name)
-    
-    def run(self,minePackage):
+    def run(self,minePackage,progress):
         weightedList={}
         self.tokenizer(minePackage)
         processor=self.queryProcessor()
         processor.processor(minePackage)
         distance=self.distanceVector()
         distance.run(minePackage)
-        clouds=minePackage['clouds']
-        for cloud in clouds:
-            for n in cloud.graph.nodes():
-                weightedList[cloud.graph.node[n]['link']]=cloud.graph.node[n]['weight']
-        self.ranking(weightedList)
-    
-    def ranking(self,weightedList):
-        print 'INFORMATION RETRIEVAL ALGORITHM: Document Vector'
-        print
-        print 'Ranking:'
-        print
-        ranking=sorted(weightedList.items(),key = lambda x:x[1])
-        #Orden Descendente:
-        i=len(ranking)-1
-        elem=-1
-        f=1
-        while i>=0:
-            print f,'|||',ranking[elem][0],'||| W=',ranking[elem][1]
-            elem-=1
-            i-=1
-            f+=1
+        self.ranking(minePackage,progress)
 
-
-
-'''#### Enfoque Ponderado #####################################################'''
+'''#### Enfoque Ponderado ################################################################'''
 class WeightedApproach(Algorithm):
     def __init__(self,name):
         super(WeightedApproach,self).__init__(name)
     def run(self,minePackage):
-        weightedList={}
+        #weightedList={}
         self.tokenizer(minePackage)#Descarga contenido y lo tokeniza
         processor=self.queryProcessor()#Se instancia un procesador de query
         processor.processor(minePackage)#Se tokeniza la query
         weightingProccess=self.weighting()#Se instancia la clase encargada de ponderar contenido de los nodos
         weightingProccess.run(minePackage)#Se inicia proceso de ponderacion de nodos
-        clouds=minePackage['clouds']#se extraen las nubes del paquete
-        for cloud in clouds:
-            for n in cloud.graph.nodes():
-                weightedList[cloud.graph.node[n]['link']]=cloud.graph.node[n]['weight']#Genera un diccionario con los enlaces ponderados
-        self.ranking(weightedList)#Se presentan enlaces web en un Ranking
+        self.ranking(minePackage,progress)#Se realiza el proceso de ranking
 
-    def ranking(self,weightedList):
-        print 'INFORMATION RETRIEVAL ALGORITHM: Weighted Approach'
-        print
-        print 'Ranking:'
-        print
-        ranking=sorted(weightedList.items(),key = lambda x:x[1])
-        #Orden Descendente:
-        i=len(ranking)-1
-        elem=-1
-        f=1
-        while i>=0:
-            print f,'|||',ranking[elem][0],'||| W=',ranking[elem][1]
-            elem-=1
-            i-=1
-            f+=1
+'''#### Okapi BM25 ########################################################################'''
+class Okapi(Algorithm):
+    def __init__(self,name):
+        super(Okapi,self).__init__(name)
+    def run(self,minePackage,progress):
+        #weightedList={}
+        self.tokenizer(minePackage) #Descarga contenido y lo tokeniza
+        processor=self.queryProcessor() #Se instancia un procesador de query
+        processor.processor(minePackage) #Se tokeniza la query
+        score=self.okapi_BM25() #se instancia el modelo BM25
+        score.run(minePackage) #se ejecuta el calculo de Okapi score(D,Q)
+        #self.ranking(minePackage,progress) # se realiza el proceso de ranking
 
+'''
+FUNCIONAMIENTO:
+-hallar frecuencia de aparicion en el documento, de los terminos que aparecen en la consulta: f(qi,D)
+-longitud del documento en numero de palabras: |D|
+-hallar longitud promedio de los documentos sobre los cuales se aplica el algoritmo: avgdl
+-hallar numero total de documentos en la coleccion: N
+-hallar el numero de documentos que contienen la palabra clave qi: n(qi)
+-calcular el IDF de las palabras de la query: IDF(qi)=log((N-n(qi)+0.5)/(n(qi)+0.5))
+-fijar constante empirica k1=1.2 - 2.0
+-fijar constante empirica b=0.75
+-Hallar score okapiBM25: score(D,Q)= sum(IDF(qi)* (f(qi,D)*k1+1/f(qi,d)+k1*(1-b+b*(|D|/avgdl))))
+'''
 
-
-'''#### Ranking Colaborativo #####################################################'''
+'''#### Ranking Colaborativo ######################################################'''
 class CRank(Algorithm):
     def __init__(self,name):
         super(CRank,self).__init__(name)
+    def run(self,minePackage):
+        pass
 
-'''#### Support Vector Machine #####################################################'''
+'''#### Support Vector Machine ####################################################'''
 class SupportVectorMachine(Algorithm):
     def __init__(self,name):
         super(SupportVectorMachine,self).__init__(name)
+    def run(self,minePackage):
+        pass
 
-'''#### Latent Semantic Analysis #####################################################'''
+'''#### Latent Semantic Analysis ##################################################'''
 class LatentSemanticAnalysis(Algorithm):
     def __init__(self,name):
         super(LatentSemanticAnalysis,self).__init__(name)
+    def run(self,minePackage):
+        pass

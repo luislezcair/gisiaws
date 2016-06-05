@@ -36,18 +36,20 @@ class WebScraperClass:
         step=0
         progress.set_totalScraping(len(scraperLinks))
         progress.set_scrapingState('Ejecutando')
+        # ordenar por el peso de los documentos
+        scraperLinks = sorted(scraperLinks, key=lambda k: k['weight'], reverse=True)
         for link in scraperLinks:
             if not progress.get_stop():
                 step+=1
                 progress.set_scrapingProgress(step)
-                url=URL(link)
+                url=URL(link['link'])
                 # fileName='file_'+str(step)+'.json'
                 fileName = str(id_request)+"-"+str(step)+"@"+url.domain+'.json'
                 print '->'+fileName
                 if url.mimetype in MIMETYPE_PDF:
-                    self.fileGenerator.json(fileName,self.pdfToText(link),directorio)
+                    self.fileGenerator.json(fileName,self.pdfToText(link['link']),link['weight'],directorio)
                 else:
-                    self.fileGenerator.json(fileName,self.htmlToText(link),directorio)
+                    self.fileGenerator.json(fileName,self.htmlToText(link['link']),link['weight'],directorio)
             else:
                 progress.set_scrapingState('Detenido')
                 print 'Detenido'
@@ -61,10 +63,11 @@ class FileGenerator:
     def __init__(self):
         pass
 
-    def json(self,fileName,content,directorio):
+    def json(self,fileName,content,weight,directorio):
         document={}
         webContent={}
         contentList=[]
+        webContent['weight'] = weight
         webContent["content"]=content
         contentList.append(webContent)
         document["document"]=contentList

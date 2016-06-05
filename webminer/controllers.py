@@ -196,7 +196,7 @@ class ScraperController(Controller):
             if not self.progress.get_stop():
                 for n in cloud.graph.nodes():
                     if not self.progress.get_stop():
-                        scraperLinks.append(cloud.graph.node[n]['link'])
+                        scraperLinks.append(cloud.graph.node[n])
                     else:
                         self.progress.set_scrapingState('Detenido')
                         break

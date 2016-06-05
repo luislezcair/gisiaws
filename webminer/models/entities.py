@@ -42,6 +42,12 @@ class Searchkeys_wsrequest(db.Entity):
     id = PrimaryKey(int)
     id_proyecto = Required(int)
     nombre_directorio = Required(str)
-    ws_request = Optional("WsRequestState")
+    ws_request = Optional("WsRequestState")    
+
+class Searchkeys_searchkey(db.Entity):
+    _table_ = "searchkeyws_searchkey"
+    id = PrimaryKey(int)
+    clave = Required(str)
+    request_id = Required(int)
 
 db.generate_mapping(create_tables=True)
