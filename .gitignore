@@ -80,3 +80,4 @@ gisiaws.sqlite3
 webminer/models/db_local.py
 temp.pdf
 webminer/webScraper/storage
+webminer/webScraper/settings_local.py
