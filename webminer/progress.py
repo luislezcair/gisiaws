@@ -113,7 +113,7 @@ class Process:
 
         return self.state
 
-    @db_session(serializable=True)
+    @db_session()
     def comprobar_estado(self):
          estadoActual = WsRequestState.get(search_keys = self.id_request)
          if estadoActual.stop:
