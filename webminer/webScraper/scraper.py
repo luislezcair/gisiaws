@@ -1,10 +1,17 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import os
 import commands
 import json
 from pattern.web import URL, plaintext, MIMETYPE_PDF
 
+try:
+    from settings_local import *
+except ImportError:
+    # Establece el directorio por defecto del repositorio si no encuentra el
+    # archivo de configuración.
+    # El archivo settings.py debe tener esta misma línea:
+    REPOSITORY_PATH = '/var/www/html/gisiaws/webminer/webScraper/storage/'
 
 
 class WebScraperClass:
@@ -75,7 +82,7 @@ class FileGenerator:
         self.write_json(fileName,document,directorio)
 
     def write_json(self,fileName, structure , directorio):
-        ruta = "/var/www/html/gisiaws/webminer/webScraper/storage/"
+        ruta = REPOSITORY_PATH
         self.crearDirectorio(ruta,directorio)
         f = open(ruta+directorio+"/"+fileName, mode='w')
         json.dump(structure, f, indent=2)
