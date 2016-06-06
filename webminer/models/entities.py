@@ -8,7 +8,7 @@ db = getDb()
 # crear archivo db_local con el siguiente codigo
 # def getDb():
 #     db = Database('mysql', host='', user='', passwd='' , db="") -> para mysql
-#     db = Database("sqlite", "database.sqlite", create_db=True) -> para sqlite
+#   db = Database("sqlite", "database.sqlite", create_db=True) -> para sqlite
 #     return db
 
 class Cloud(db.Entity):
@@ -42,7 +42,7 @@ class Searchkeys_wsrequest(db.Entity):
     id = PrimaryKey(int)
     id_proyecto = Required(int)
     nombre_directorio = Required(str)
-    ws_request = Optional("WsRequestState")    
+    ws_request = Optional("WsRequestState")
 
 class Searchkeys_searchkey(db.Entity):
     _table_ = "searchkeyws_searchkey"

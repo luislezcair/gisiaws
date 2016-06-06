@@ -135,6 +135,7 @@ class InformationRetrievalController(Controller):
         super(InformationRetrievalController,self).__init__(progress)
 
     def start(self,minePackage,algorithm):
+
         algorithm.run(minePackage,self.progress)
 
 
