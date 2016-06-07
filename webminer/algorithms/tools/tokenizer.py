@@ -7,7 +7,6 @@ class Tokenizer:
 		pass
 
 	def tokenizer(self,url):
-     
 		#page = URL(url).download(user_agent='Mozilla/5')
            page = URL(url).download()
            text = plaintext(page, keep={})

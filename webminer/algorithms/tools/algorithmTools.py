@@ -13,6 +13,7 @@ class QueryProcessor:
     def __init__(self):
         pass
     def processor(self,minePackage):
+        print '####SEARCH_KEY:',minePackage['searchKey']
         s = Sentence(parse(minePackage['searchKey']))
         minePackage['searchKey']=count(words(s), stemmer=PORTER)
 
@@ -64,7 +65,7 @@ class Tokenizer:
 
 
 
-class VectorSimilarity:
+class VectorSimilarity:# Similitud vectorial con distancia del coseno, metodo VSM
     def __init__(self):
         pass
     def calculate(self,minePackage,progress):
@@ -96,7 +97,7 @@ class VectorSimilarity:
                 for n in cloud.graph.nodes():
                     methodData=cloud.graph.node[n]['methodData']
                     vector=methodData.getData()
-                    cloud.graph.node[n]['weight']=m.similarity(vector,query)
+                    cloud.graph.node[n]['weight_VSM']=m.similarity(vector,query)
 
 
 
@@ -107,11 +108,12 @@ class UnPack:
         total=0
         for cloud in clouds:
             total+= len(cloud.graph.nodes())
+
         return total
 
 
 
-class DistanceVector:
+class DistanceVector:# Por ahora no se usa este metodo.
     def __init__(self):
         pass
     def run(self,minePackage):
@@ -140,19 +142,19 @@ class DomainDictionary:
 #print obj.validate('tea')
 
 
-class WeightingProccess:
+class WeightingProccess:# Calculo de relevancia del metodo de enfoque ponderado
 
     def __init__(self):
        pass
 
     def run(self,minePackage):
-        ac=0 #acierto clave
-        ap=0 #acierto positivo
-        an=0 #acierto negativo
+        ac=0.0 #acierto clave
+        ap=0.0 #acierto positivo
+        an=0.0 #acierto negativo
         alpha=1.00
         beta=0.75
-        gamma=0.50
-        dictionary=DomainDictionary(open("/home/matt/clusterProject/webMining/algorithms/tools/dictionary.txt",'r'))
+        gamma=0.50        
+        dictionary=DomainDictionary(open(os.path.dirname(__file__) + "dictionary.txt",'r'))
         clouds=minePackage['clouds']
         query=minePackage['searchKey']
         for cloud in clouds:
@@ -168,7 +170,7 @@ class WeightingProccess:
                             ap+=tf
                         else:
                             an+=tf
-                cloud.graph.node[n]['weight']=((ac*alpha)+(ap*beta)+(an*gamma))/(ac+ap+an)
+                cloud.graph.node[n]['weight_WA']=((ac*alpha)+(ap*beta)+(an*gamma))/(ac+ap+an)
                 #print cloud.graph.node[n]['weight']
 
 #urlContent=UrlToPlainText()

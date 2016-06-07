@@ -100,7 +100,7 @@ class CrawlerController(Controller):
                     logging.critical(u'Error crítico -- cerrando')
                     break
             else:
-                #print 'PROCESO DETENIDO!'
+                print 'PROCESO DETENIDO!'
                 break
         if not self.progress.get_stop():
             minePackage={'clouds':clouds,'searchKey':searchKey,}
@@ -134,9 +134,13 @@ class InformationRetrievalController(Controller):
     def __init__(self,progress):
         super(InformationRetrievalController,self).__init__(progress)
 
-    def start(self,minePackage,algorithm):
+    def start(self,minePackage,pattern_methods,own_methods):
 
-        algorithm.run(minePackage,self.progress)
+        for algorithm in pattern_methods:
+            algorithm.run(minePackage,self.progress)
+
+        for algorithm in own_methods:
+            algorithm.run(minePackage,self.progress)
 
 
 

@@ -9,10 +9,10 @@ from algorithms.retrievalAlgorithms import *
 
 class WebMinerController(object):
 
-    def __init__(self,cloudSize = 20,algorithm = VectorSpaceModel("VectorSpaceModel"),searchKey = "tea argentina",id_request = 0, urls = [] , directorio = ""):
+    def __init__(self,cloudSize = 5,searchKey = "tea argentina",id_request = 0, urls = [] , directorio = ""):
         super(WebMinerController, self).__init__()
         self.progress=Process(id_request)
-        self.algorithm=algorithm
+
         self.searchKey=searchKey
         self.n=0
         self.directorio = directorio
@@ -30,10 +30,9 @@ class WebMinerController(object):
     def run(self):
         print self.searchKey
         print self.cloudSize
-        print self.algorithm.getName()
         self.minePackage=self.crawler()
         if not self.progress.get_stop():
-            self.informationRetrieval(self.minePackage,self.algorithm)
+            self.informationRetrieval(self.minePackage)
         if not self.progress.get_stop():
             self.scraper(self.minePackage)
 
@@ -49,8 +48,10 @@ class WebMinerController(object):
     def MEGA_cloud(self,minePackage,enlaces):# enlaces: es la cantidad de enlaces aleatorios que se crearan
         self.MEGA_CrawlerController.start(minePackage,enlaces)
 
-    def informationRetrieval(self,minePackage,algorithm):
-        self.IRController.start(minePackage,algorithm)
+    def informationRetrieval(self,minePackage):
+        pattern_methods=[VectorSpaceModel('Vector Space Model')]
+        own_methods=[WeightedApproach('Weighted Approach'),Okapi('Okapi-BM25')]
+        self.IRController.start(minePackage,pattern_methods,own_methods)
 
     def scraper(self,minePackage):
         self.scraperController.start(minePackage,self.directorio,self.id_request)

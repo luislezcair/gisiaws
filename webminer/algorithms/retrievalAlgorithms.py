@@ -1,7 +1,7 @@
 #import time
 # -*- coding: utf-8 -*-
 from tools.algorithmTools import * #Herramientas de calculo para algoritmo booleando y modelo espacio vectorial
-#from tools.okapiTools.okapi import * #Heramientas de calculo para algoritmo okapi
+from tools.okapiTools.okapi import * #Heramientas de calculo para algoritmo okapi
 #from tools.crankTools.crank import * #Heramientas de calculo para algoritmo Crank
 #from tools.svmTools.svm import * #Herramientas de calculo para algoritmo basado en maquinas de vectores de soporte
 #from tools.lsaTools.lsa import * #Herramientas de calculo para algoritmo de analisis semantico latente
@@ -41,14 +41,28 @@ class Algorithm(object):
     def okapi_BM25(self):
         return BM25()
 
-    def ranking(self,minePackage,progress):
+    def totalScores(self,minePackage,progress):
         clouds=minePackage['clouds']
-        weightedList=dict()
         if not progress.get_stop():
             for cloud in clouds:
                 if not progress.get_stop():
                     for n in cloud.graph.nodes():
-                        weightedList[cloud.graph.node[n]['link']]=cloud.graph.node[n]['weight']
+                        cloud.graph.node[n]['totalScore']=(cloud.graph.node[n]['weight_VSM']+cloud.graph.node[n]['weight_WA']+cloud.graph.node[n]['weight_OKAPI'])/3
+
+    def ranking(self,minePackage,progress):
+        clouds=minePackage['clouds']
+        weightedList=dict()
+        self.totalScores(minePackage,progress)
+        if not progress.get_stop():
+            for cloud in clouds:
+                if not progress.get_stop():
+                    for n in cloud.graph.nodes():
+                        scores=list()
+                        scores.append(cloud.graph.node[n]['weight_VSM'])
+                        scores.append(cloud.graph.node[n]['weight_WA'])
+                        scores.append(cloud.graph.node[n]['weight_OKAPI'])
+                        scores.append(cloud.graph.node[n]['totalScore'])
+                        weightedList[cloud.graph.node[n]['link']]=scores
                 else:
                     progress.set_IRState('Detenido')
                     break
@@ -59,23 +73,30 @@ class Algorithm(object):
             progress.set_IRState('Detenido')
 
     def printRanking(self,weightedList,progress):
-        print 'INFORMATION RETRIEVAL ALGORITHM: Vector Space Model'
+        print
+        print 'INFORMATION RETRIEVAL ALGORITHM: Vector Space Model && Weighted Approach && OKAPI-BM25'
         print
         print 'Ranking:'
         print
-        ranking=sorted(weightedList.items(),key = lambda x:x[1])
+        ranking=sorted(weightedList.items(),key = lambda x:x[1][3])
         i=len(ranking)-1
         elem=-1
         f=1
         while i>=0:
             if not progress.get_stop():
-                print f,'|||',ranking[elem][0],'||| W=',ranking[elem][1]#imprime en orden descendente
+                print '-'*100
+                print f,'|||',ranking[elem][0],'|||','TOTAL SCORE:',ranking[elem][1][3]
+                print '  VSM:',ranking[elem][1][0]
+                print '   WA:',ranking[elem][1][1]
+                print 'OKAPI:',ranking[elem][1][2]
+                #print f,'|||',ranking[elem][0],'|||',ranking[elem][1][0],'|||',ranking[elem][1][1],'|||',ranking[elem][1][2],'|||',ranking[elem][1][3] #imprime en orden descendente
                 elem-=1
                 i-=1
                 f+=1
             else:
                 progress.set_IRState('Detenido')
                 break
+        print
 
     def __str__(self):
         return self.name
@@ -173,10 +194,10 @@ class VectorSpaceModel(Algorithm):
         super(VectorSpaceModel,self).__init__(name)
     def run(self,minePackage,progress):#recibe como parametro una referencia de la clase progress
         weightedList={}
-        query=minePackage['searchKey']
+        #query=minePackage['searchKey']
         vectorSimilarity=self.vectorSim()
         vectorSimilarity.calculate(minePackage,progress)
-        self.ranking(minePackage,progress)
+        #self.ranking(minePackage,progress)
 
 '''#### Documento Vector #################################################################'''
 class DocumentVector(Algorithm):
@@ -189,20 +210,20 @@ class DocumentVector(Algorithm):
         processor.processor(minePackage)
         distance=self.distanceVector()
         distance.run(minePackage)
-        self.ranking(minePackage,progress)
+        #self.ranking(minePackage,progress)
 
 '''#### Enfoque Ponderado ################################################################'''
 class WeightedApproach(Algorithm):
     def __init__(self,name):
         super(WeightedApproach,self).__init__(name)
-    def run(self,minePackage):
+    def run(self,minePackage,progress):
         #weightedList={}
         self.tokenizer(minePackage)#Descarga contenido y lo tokeniza
         processor=self.queryProcessor()#Se instancia un procesador de query
         processor.processor(minePackage)#Se tokeniza la query
         weightingProccess=self.weighting()#Se instancia la clase encargada de ponderar contenido de los nodos
         weightingProccess.run(minePackage)#Se inicia proceso de ponderacion de nodos
-        self.ranking(minePackage,progress)#Se realiza el proceso de ranking
+        #self.ranking(minePackage,progress)#Se realiza el proceso de ranking
 
 '''#### Okapi BM25 ########################################################################'''
 class Okapi(Algorithm):
@@ -210,12 +231,12 @@ class Okapi(Algorithm):
         super(Okapi,self).__init__(name)
     def run(self,minePackage,progress):
         #weightedList={}
-        self.tokenizer(minePackage) #Descarga contenido y lo tokeniza
-        processor=self.queryProcessor() #Se instancia un procesador de query
-        processor.processor(minePackage) #Se tokeniza la query
+        #self.tokenizer(minePackage) #Descarga contenido y lo tokeniza
+        #processor=self.queryProcessor() #Se instancia un procesador de query
+        #processor.processor(minePackage) #Se tokeniza la query
         score=self.okapi_BM25() #se instancia el modelo BM25
         score.run(minePackage) #se ejecuta el calculo de Okapi score(D,Q)
-        #self.ranking(minePackage,progress) # se realiza el proceso de ranking
+        self.ranking(minePackage,progress) # se realiza el proceso de ranking
 
 '''
 FUNCIONAMIENTO:

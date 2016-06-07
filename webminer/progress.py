@@ -2,6 +2,8 @@ from models.entities import *
 from models import ORM_functions
 from models import entities
 
+
+
 # -*- coding: utf-8 -*-
 class Process:
 
@@ -24,10 +26,14 @@ class Process:
         self.id_request = id_request
 
 
+        self.db = getDbProgress()
+        self.cursor = self.db.cursor()
+
+
         with db_session:
             estado = WsRequestState(estado = unicode(self.state), stop = False , search_keys = id_request)
             commit()
-
+            flush()
 
         # para inicializar el estado en la bd
         self.get_progress()
@@ -39,12 +45,7 @@ class Process:
         #print self.totalCrawling
     def set_crawlerProgress(self,progress):
         self.crawlerProgress=progress
-
-        with db_session:
-           estadoActual = WsRequestState.get(search_keys = self.id_request)
-           estadoActual.estado = unicode(self.get_progress())
-           commit()
-
+        self.actualizar_estado()
         self.comprobar_estado()
         #print self.crawlerProgress
     def set_crawlerState(self,state):
@@ -63,12 +64,8 @@ class Process:
         #print self.totalScraping
     def set_scrapingProgress(self,progress):
         self.scraperProgress=progress
-
-        with db_session():
-              estadoActual = WsRequestState.get(search_keys = self.id_request)
-              estadoActual.estado = unicode(self.get_progress())
-              commit()
-
+        self.actualizar_estado()
+        self.comprobar_estado()
         #print self.scraperProgress
     def set_scrapingState(self,state):
         self.scraperState=state
@@ -85,11 +82,8 @@ class Process:
         self.totalIR=quantity
     def set_IRProgress(self,progress):
         self.IRProgress=progress
-        with db_session():
-             estadoActual = WsRequestState.get(search_keys = self.id_request)
-             estadoActual.estado = unicode(self.get_progress())
-             commit()
-
+        self.actualizar_estado()
+        self.comprobar_estado()
     def set_IRState(self,state):
         self.IRState=state
     def get_totalIR(self):
@@ -110,11 +104,19 @@ class Process:
         self.state['exploracion']=self.crawlerState+'||'+str(self.crawlerProgress)+'/'+str(self.totalCrawling)
         self.state['ranking']=self.IRState+'||'+str(self.IRProgress)+'/'+str(self.totalIR)
         self.state['extraccion']=self.scraperState+'||'+str(self.scraperProgress)+'/'+str(self.totalScraping)
-
+        
         return self.state
 
-    @db_session()
     def comprobar_estado(self):
-         estadoActual = WsRequestState.get(search_keys = self.id_request)
-         if estadoActual.stop:
-             self.set_stop(True)
+        self.cursor.execute("SELECT * FROM wsrequest_state WHERE search_keys ="+self.id_request)
+        self.db.commit()
+        numrows = int(self.cursor.rowcount)
+        for x in range(0,numrows):
+            row = self.cursor.fetchone()
+            if row[2] == 1:
+                self.set_stop(True)
+
+
+    def actualizar_estado(self):
+        self.cursor.execute("UPDATE wsrequest_state SET estado=%s where search_keys ="+self.id_request,(str(self.get_progress())))
+        self.db.commit()

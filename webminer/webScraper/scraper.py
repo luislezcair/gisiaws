@@ -44,7 +44,7 @@ class WebScraperClass:
         progress.set_totalScraping(len(scraperLinks))
         progress.set_scrapingState('Ejecutando')
         # ordenar por el peso de los documentos
-        scraperLinks = sorted(scraperLinks, key=lambda k: k['weight'], reverse=True)
+        scraperLinks = sorted(scraperLinks, key=lambda k: k['totalScore'], reverse=True)
         for link in scraperLinks:
             if not progress.get_stop():
                 step+=1
@@ -54,9 +54,9 @@ class WebScraperClass:
                 fileName = str(id_request)+"-"+str(step)+"@"+url.domain+'.json'
                 print '->'+fileName
                 if url.mimetype in MIMETYPE_PDF:
-                    self.fileGenerator.json(fileName,self.pdfToText(link['link']),link['link'],link['weight'],directorio)
+                    self.fileGenerator.json(fileName,self.pdfToText(link['link']),link['link'],link['totalScore'],directorio)
                 else:
-                    self.fileGenerator.json(fileName,self.htmlToText(link['link']),link['link'],link['weight'],directorio)
+                    self.fileGenerator.json(fileName,self.htmlToText(link['link']),link['link'],link['totalScore'],directorio)
             else:
                 progress.set_scrapingState('Detenido')
                 print 'Detenido'

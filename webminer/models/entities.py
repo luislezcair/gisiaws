@@ -4,12 +4,21 @@ from db_local import *
 
 
 db = getDb()
-# from pony.orm import *
+
 # crear archivo db_local con el siguiente codigo
+# -------Inicio---------
+# from pony.orm import *
+# import MySQLdb
+#
 # def getDb():
 #     db = Database('mysql', host='', user='', passwd='' , db="") -> para mysql
-#   db = Database("sqlite", "database.sqlite", create_db=True) -> para sqlite
+#     db = Database("sqlite", "database.sqlite", create_db=True) -> para sqlite
 #     return db
+#
+# def getDbProgress():
+#     db = MySQLdb.connect(host="", user="", passwd="",db="")
+#     return db
+# -------Fin---------
 
 class Cloud(db.Entity):
     searchKey=PrimaryKey(str)
@@ -43,6 +52,7 @@ class Searchkeys_wsrequest(db.Entity):
     id_proyecto = Required(int)
     nombre_directorio = Required(str)
     ws_request = Optional("WsRequestState")
+
 
 class Searchkeys_searchkey(db.Entity):
     _table_ = "searchkeyws_searchkey"

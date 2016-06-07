@@ -10,7 +10,7 @@ class Structure:#es un clase auxiliar para encapsular una estructura.
     graph=nx.DiGraph()
     domain=str()
     termsDocGraph=None
-    weightedQuery=None   
+    weightedQuery=None
 
     def  __init__(self,graph,domain):
         self.graph=graph
@@ -21,7 +21,7 @@ class Structure:#es un clase auxiliar para encapsular una estructura.
     def setTermsDocGraph(self,value):
         self.termsDocGraph=value
     def getTermsDocGraph(self):
-        return self.termsDocGraph         
+        return self.termsDocGraph
     def setWeightedQuery(self,value):
         self.weightedQuery=value
     def getWeightedQuery(self):
@@ -35,7 +35,7 @@ class SimpleCrawler1(Crawler):
     newRoad=None
     structure=nx.DiGraph()
     badLink=Filter()
-    
+
     def visit(self, link, source=None):
         linkReferrer=link.referrer
         linkUrl=link.url
@@ -49,8 +49,8 @@ class SimpleCrawler1(Crawler):
             pass
         else:
             print str(self.count)," VISITING:", linkUrl, " <----- FROM:", linkReferrer
-            self.structure.add_node(linkUrl, ID=self.count, weight=0.0,   link=linkUrl, methodData=None)
-            self.count+=1 
+            self.structure.add_node(linkUrl, ID=self.count, weight_VSM=0.0, weight_WA=0.0, weight_OKAPI=0.0, weight_SVM=0.0, weight_CRANK=0.0, totalScore=0.0, link=linkUrl, methodData=None)
+            self.count+=1
             if linkReferrer!='':
                 self.structure.add_edge(linkReferrer,linkUrl)
 
@@ -59,7 +59,7 @@ class SimpleCrawler1(Crawler):
         pdf=url.mimetype in MIMETYPE_PDF
         if pdf:
             print str(self.count)," VISITING:", link.url, " <----- FROM:", link.referrer
-            self.structure.add_node(link.url, ID=self.count, weight=0.0, link=link.url, methodData=None)
+            self.structure.add_node(link.url, ID=self.count, weight_VSM=0.0, weight_WA=0.0, weight_OKAPI=0.0, weight_SVM=0.0, weight_CRANK=0.0,totalScore=0.0 ,link=link.url, methodData=None)
             if link.referrer!='':
                 self.structure.add_edge(link.referrer,link.url)
             self.count+=1
@@ -75,10 +75,10 @@ class SimpleCrawler1(Crawler):
 
     def newStructure(self):
         self.structure=nx.DiGraph()
-    
+
     def getStructure(self):
         return self.structure
-    
+
     def getSocial(self):
         return self.social
     def setSocial(self):
