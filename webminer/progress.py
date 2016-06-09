@@ -104,7 +104,7 @@ class Process:
         self.state['exploracion']=self.crawlerState+'||'+str(self.crawlerProgress)+'/'+str(self.totalCrawling)
         self.state['ranking']=self.IRState+'||'+str(self.IRProgress)+'/'+str(self.totalIR)
         self.state['extraccion']=self.scraperState+'||'+str(self.scraperProgress)+'/'+str(self.totalScraping)
-        
+
         return self.state
 
     def comprobar_estado(self):
@@ -118,5 +118,6 @@ class Process:
 
 
     def actualizar_estado(self):
-        self.cursor.execute("UPDATE wsrequest_state SET estado=%s where search_keys ="+self.id_request,(str(self.get_progress())))
+        progress = str(self.get_progress())
+        self.cursor.execute("UPDATE wsrequest_state SET estado=? where search_keys ="+self.id_request,(progress,))
         self.db.commit()

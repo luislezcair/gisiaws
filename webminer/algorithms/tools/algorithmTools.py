@@ -153,8 +153,8 @@ class WeightingProccess:# Calculo de relevancia del metodo de enfoque ponderado
         an=0.0 #acierto negativo
         alpha=1.00
         beta=0.75
-        gamma=0.50        
-        dictionary=DomainDictionary(open(os.path.dirname(__file__) + "dictionary.txt",'r'))
+        gamma=0.50
+        dictionary=DomainDictionary(open(os.path.dirname(__file__) + "/dictionary.txt",'r'))
         clouds=minePackage['clouds']
         query=minePackage['searchKey']
         for cloud in clouds:

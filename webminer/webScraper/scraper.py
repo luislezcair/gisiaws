@@ -25,7 +25,7 @@ class WebScraperClass:
         htmlContent = URL(url).download()
         #htmlContent = plaintext(s, keep={'h1':[], 'h2':[], 'strong':[], 'a':['href']})
         txtContent = plaintext(htmlContent, keep={'a':['href']})
-        return txtContent
+        return htmlContent
 
     def pdfToText(self,link):
         url = URL(link)
@@ -50,13 +50,14 @@ class WebScraperClass:
                 step+=1
                 progress.set_scrapingProgress(step)
                 url=URL(link['link'])
-                # fileName='file_'+str(step)+'.json'
-                fileName = str(id_request)+"-"+str(step)+"@"+url.domain+'.json'
-                print '->'+fileName
+                fileNameJson = str(step)+"_"+url.domain+'.json'
+                fileNameDocument = str(step)+"_"+url.domain
+
                 if url.mimetype in MIMETYPE_PDF:
-                    self.fileGenerator.json(fileName,self.pdfToText(link['link']),link['link'],link['totalScore'],directorio)
+                    fileNameDocument += ".pdf"
                 else:
-                    self.fileGenerator.json(fileName,self.htmlToText(link['link']),link['link'],link['totalScore'],directorio)
+                    fileNameDocument += ".html"
+                self.fileGenerator.json(fileNameJson,fileNameDocument,link['link'],link['totalScore'],directorio)
             else:
                 progress.set_scrapingState('Detenido')
                 print 'Detenido'
@@ -70,22 +71,26 @@ class FileGenerator:
     def __init__(self):
         pass
 
-    def json(self,fileName,content,link,weight,directorio):
+    def json(self,fileNameJson,fileNameDocument,link,weight,directorio):
         document={}
         webContent={}
         contentList=[]
         webContent['url'] = link
         webContent['weight'] = weight
-        webContent["content"]=content
+        webContent["filename"]=fileNameDocument
         contentList.append(webContent)
         document["document"]=contentList
-        self.write_json(fileName,document,directorio)
+        self.write_json(fileNameJson,document,directorio)
+        contenido = self.descargarContenido(link)
+        self.write_json(fileNameDocument,contenido,directorio)
 
     def write_json(self,fileName, structure , directorio):
         ruta = REPOSITORY_PATH
         self.crearDirectorio(ruta,directorio)
         f = open(ruta+directorio+"/"+fileName, mode='w')
         json.dump(structure, f, indent=2)
+
+
         f.close()
 
     def html(self,content):
@@ -102,6 +107,10 @@ class FileGenerator:
         if not os.path.exists(newpath):
             os.makedirs(newpath)
 
+    def descargarContenido(self,link):
+        htmlContent = URL(link).download()
+        htmlContent = plaintext(htmlContent, keep={'title':[],'h1':[], 'h2':[], 'strong':[], 'a':['href']})
+        return htmlContent.replace("\n\n","<br>").replace("\n"," ")
 #obj=WebScraperClass()
 #obj.start(['http://www.clips.ua.ac.be/sites/default/files/ctrs-002_0.pdf'])
 #obj.start(['http://www.teaboard.gov.in/pdf/notice/Plant_Protection_Code_Ver_5_0_January_2016.pdf'])
