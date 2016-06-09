@@ -57,7 +57,7 @@ class WebScraperClass:
                     fileNameDocument += ".pdf"
                 else:
                     fileNameDocument += ".html"
-                self.fileGenerator.json(fileNameJson,fileNameDocument,link['link'],link['totalScore'],directorio)
+                self.fileGenerator.json(fileNameJson,fileNameDocument,link['link'],link['totalScore'],id_request,directorio)
             else:
                 progress.set_scrapingState('Detenido')
                 print 'Detenido'
@@ -71,18 +71,18 @@ class FileGenerator:
     def __init__(self):
         pass
 
-    def json(self,fileNameJson,fileNameDocument,link,weight,directorio):
+    def json(self,fileNameJson,fileNameDocument,link,weight,id_request,directorio):
         document={}
         webContent={}
         contentList=[]
         webContent['url'] = link
         webContent['weight'] = weight
         webContent["filename"]=fileNameDocument
+        webContent["id_request"] = id_request
         contentList.append(webContent)
         document["document"]=contentList
         self.write_json(fileNameJson,document,directorio)
-        contenido = self.descargarContenido(link)
-        self.write_json(fileNameDocument,contenido,directorio)
+        self.write_file(fileNameDocument,directorio,link)
 
     def write_json(self,fileName, structure , directorio):
         ruta = REPOSITORY_PATH
@@ -90,8 +90,19 @@ class FileGenerator:
         f = open(ruta+directorio+"/"+fileName, mode='w')
         json.dump(structure, f, indent=2)
 
-
-        f.close()
+    def write_file(self,fileName , directorio,link):
+        ruta = REPOSITORY_PATH
+        self.crearDirectorio(ruta,directorio)
+        if "pdf" in fileName:
+            url = URL(link).download()
+            document = open (ruta+directorio+"/"+fileName,'w')
+            document.write(url)
+            document.close()
+        else:
+            contenido = self.descargarContenido(link)
+            f = open(ruta+directorio+"/"+fileName, mode='w')
+            json.dump(contenido, f, indent=2)
+            f.close()
 
     def html(self,content):
         pass
