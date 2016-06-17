@@ -197,16 +197,27 @@ class ScraperController(Controller):
     def start(self,minePackage,directorio,id_request):
         scraperLinks=[]
         clouds=minePackage['clouds']
+        totalLinks = list()
         for cloud in clouds:
+            for link in cloud.graph.nodes():
+                totalLinks.append(link)
+
+        totalLinks = set(totalLinks)
+
+        print "PRINT"
+        for unLink in totalLinks:
+            print unLink
+        print "FIN PRINT"
+
+
+        for n in totalLinks:
             if not self.progress.get_stop():
-                for n in cloud.graph.nodes():
-                    if not self.progress.get_stop():
-                        scraperLinks.append(cloud.graph.node[n])
-                    else:
-                        self.progress.set_scrapingState('Detenido')
-                        break
+                print cloud.graph.node[n]
+                scraperLinks.append(cloud.graph.node[n])
             else:
+                self.progress.set_scrapingState('Detenido')
                 break
+
         if not self.progress.get_stop():
             self.scraper.start(scraperLinks,self.progress,directorio,id_request)
         else:
