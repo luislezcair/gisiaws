@@ -9,7 +9,7 @@ from algorithms.retrievalAlgorithms import *
 
 class WebMinerController(object):
 
-    def __init__(self,cloudSize = 30,searchKey = "tea argentina",id_request = 0, urls = [] , directorio = ""):
+    def __init__(self,cloudSize = 25,searchKey = "" ,id_request = 0, urls = [] , directorio = ""):
         super(WebMinerController, self).__init__()
         self.progress=Process(id_request)
 
@@ -173,15 +173,17 @@ if __name__ == '__main__':
         for searchKey in searchkeys:
             consulta = consulta + str(searchKey.clave) + " "
 
+        nombre_directorio = request.nombre_directorio
         # url_list tiene una lista de (orden, URL)
         url_list = request.urls.order_by(Url.orden)
 
-        # urls contiene la lista de urls con el formato valido del crawler
+    # urls contiene la lista de urls con el formato valido del crawler
         urls = []
         for url in url_list:
             urlAux = []
             urlAux.append(url.url)
             urls.append(urlAux)
-
-        wm = WebMinerController(id_request = request_id , searchKey = consulta,  urls = urls , directorio = request.nombre_directorio)
-        wm.run()
+        flush()
+        
+    wm = WebMinerController(id_request = request_id , searchKey = consulta,  urls = urls , directorio = nombre_directorio)
+    wm.run()

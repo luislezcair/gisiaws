@@ -203,20 +203,23 @@ class ScraperController(Controller):
                 totalLinks.append(link)
 
         totalLinks = set(totalLinks)
+        auxiliarScraperLinks = list()
 
-        print "PRINT"
-        for unLink in totalLinks:
-            print unLink
-        print "FIN PRINT"
+        for cloud in clouds:
+            for n in cloud.graph.nodes():
+                if cloud.graph.node[n]['link'] in auxiliarScraperLinks:
+                    pass
+                else:
+                     scraperLinks.append(cloud.graph.node[n])
+                     auxiliarScraperLinks.append(cloud.graph.node[n]['link'])
 
 
-        for n in totalLinks:
-            if not self.progress.get_stop():
-                print cloud.graph.node[n]
-                scraperLinks.append(cloud.graph.node[n])
-            else:
-                self.progress.set_scrapingState('Detenido')
-                break
+        # for n in totalLinks:
+        #     if not self.progress.get_stop():
+        #         scraperLinks.append(cloud.graph.node[n])
+        #     else:
+        #         self.progress.set_scrapingState('Detenido')
+        #         break
 
         if not self.progress.get_stop():
             self.scraper.start(scraperLinks,self.progress,directorio,id_request)
