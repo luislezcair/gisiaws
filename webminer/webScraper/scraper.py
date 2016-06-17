@@ -43,9 +43,10 @@ class WebScraperClass:
         step=0
         progress.set_totalScraping(len(scraperLinks))
         progress.set_scrapingState('Ejecutando')
+                
         # ordenar por el peso de los documentos
         scraperLinks = sorted(scraperLinks, key=lambda k: k['totalScore'], reverse=True)
-        for link in scraperLinks:
+        for link in scraperLinks[:50]:
             if not progress.get_stop():
                 step+=1
                 progress.set_scrapingProgress(step)
@@ -99,10 +100,14 @@ class FileGenerator:
             document.write(url)
             document.close()
         else:
-            contenido = self.descargarContenido(link)
-            f = open(ruta+directorio+"/"+fileName, mode='w')
-            json.dump(contenido, f, indent=2)
-            f.close()
+            try:
+                contenido = self.descargarContenido(link)
+                f = open(ruta+directorio+"/"+fileName, mode='w')
+                json.dump(contenido, f, indent=2)
+                f.close()
+            except:
+                print "Excepcion al descargar archivo --> " + link
+                pass;
 
     def html(self,content):
         pass

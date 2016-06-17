@@ -9,7 +9,7 @@ from algorithms.retrievalAlgorithms import *
 
 class WebMinerController(object):
 
-    def __init__(self,cloudSize = 5,searchKey = "tea argentina",id_request = 0, urls = [] , directorio = ""):
+    def __init__(self,cloudSize = 30,searchKey = "tea argentina",id_request = 0, urls = [] , directorio = ""):
         super(WebMinerController, self).__init__()
         self.progress=Process(id_request)
 
