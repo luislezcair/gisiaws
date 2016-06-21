@@ -69,6 +69,8 @@ class Process:
         #print self.scraperProgress
     def set_scrapingState(self,state):
         self.scraperState=state
+        self.actualizar_estado()
+        self.comprobar_estado()
         #print self.scraperState
     def get_totalScraping(self):
         return self.totalScraping
@@ -115,9 +117,17 @@ class Process:
             row = self.cursor.fetchone()
             if row[2] == 1:
                 self.set_stop(True)
+        pass
 
 
     def actualizar_estado(self):
         progress = str(self.get_progress())
-        self.cursor.execute("UPDATE wsrequest_state SET estado=? where search_keys ="+self.id_request,(progress,))
-        self.db.commit()
+
+        for x in range(0, 20):
+          try:
+              self.cursor.execute("UPDATE wsrequest_state SET estado=%s where search_keys ="+self.id_request,(progress,))
+              self.db.commit()
+          except:
+             time.sleep(1)
+          finally:
+             break
