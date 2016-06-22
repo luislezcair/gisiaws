@@ -43,7 +43,7 @@ class WebScraperClass:
         step=0
         progress.set_totalScraping(len(scraperLinks))
         progress.set_scrapingState('Ejecutando')
-                
+
         # ordenar por el peso de los documentos
         scraperLinks = sorted(scraperLinks, key=lambda k: k['totalScore'], reverse=True)
         for link in scraperLinks[:50]:
@@ -125,7 +125,7 @@ class FileGenerator:
 
     def descargarContenido(self,link):
         htmlContent = URL(link).download()
-        htmlContent = plaintext(htmlContent, keep={'title':[],'h1':[], 'h2':[], 'strong':[], 'a':['href']})
+        htmlContent = plaintext(htmlContent, keep={'title':[],'h1':[], 'h2':[], 'strong':[]]})
         return htmlContent.replace("\n\n","<br>").replace("\n"," ")
 #obj=WebScraperClass()
 #obj.start(['http://www.clips.ua.ac.be/sites/default/files/ctrs-002_0.pdf'])
