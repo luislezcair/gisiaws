@@ -51,8 +51,8 @@ class WebScraperClass:
                 step+=1
                 progress.set_scrapingProgress(step)
                 url=URL(link['link'])
-                fileNameJson = str(step)+"_"+url.domain+'.json'
-                fileNameDocument = str(step)+"_"+url.domain
+                fileNameJson = str(step).zfill(2)+"_"+url.domain+'.json'
+                fileNameDocument = str(step).zfill(2)+"_"+url.domain
 
                 if url.mimetype in MIMETYPE_PDF:
                     fileNameDocument += ".pdf"
@@ -125,7 +125,7 @@ class FileGenerator:
 
     def descargarContenido(self,link):
         htmlContent = URL(link).download()
-        htmlContent = plaintext(htmlContent, keep={'title':[],'h1':[], 'h2':[], 'strong':[]]})
+        htmlContent = plaintext(htmlContent, keep={'title':[],'h1':[], 'h2':[], 'strong':[]})
         return htmlContent.replace("\n\n","<br>").replace("\n"," ")
 #obj=WebScraperClass()
 #obj.start(['http://www.clips.ua.ac.be/sites/default/files/ctrs-002_0.pdf'])
