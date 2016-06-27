@@ -8,13 +8,14 @@ from get_urls.Buscadores.msxmlExcite import *
 from get_urls.Buscadores.intelligo import *
 
 class Proyecto:
-    id = ""
-    nombre_directorio = ""
-    claves = []
-    url_google = []
-    url_bing = []
-    url_excite = []
-    url_intelligo = []
+    def __init__(self):
+        self.id = ""
+        self.nombre_directorio = ""
+        self.claves = []
+        self.url_google = []
+        self.url_bing = []
+        self.url_excite = []
+        self.url_intelligo = []
 
     def setId(self, un_id):
         self.id = un_id
@@ -48,7 +49,6 @@ class Proyecto:
             pass
 
     def crear_buscador_json(self, nombre_buscador, urls):
-
         buscador = {}
         buscador['buscador'] = nombre_buscador
         buscador['urls'] = []
