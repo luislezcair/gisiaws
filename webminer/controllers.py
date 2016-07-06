@@ -78,7 +78,6 @@ class CrawlerController(Controller):
 
     def start(self,minePackage):
         self.progress.set_crawlerState('Ejecutandose')
-        crawlerPackage=dict()
         cloudSize=minePackage['cloudSize']
         searchKey=minePackage['searchKey']
         step=0
@@ -172,7 +171,7 @@ class InformationRetrievalController(Controller):
                 if(cloud.graph.node[n]['methodData']==None):
                     unMethodData = MethodData("",cloud.graph.node[n]['link'])
                     cloud.graph.node[n]['methodData'] = unMethodData
-                
+
 
 class StorageController(Controller):
 
