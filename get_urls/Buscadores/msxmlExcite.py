@@ -14,6 +14,7 @@ def generar_consulta_excite(consultas):
         driver = webdriver.PhantomJS()
         driver.set_script_timeout(10)
         driver.maximize_window()
+        consulta = consulta.replace(" ","+")
         driver.get("http://msxml.excite.com/info.xcite/search/web?fcoid=417&fcop=topnav&fpid=27&q="+str(consulta))
         try:
                 element = WebDriverWait(driver, 30).until(EC.presence_of_element_located((By.ID, "resultsMain")))

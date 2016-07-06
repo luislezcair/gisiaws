@@ -45,7 +45,9 @@ class WebScraperClass:
         progress.set_scrapingState('Ejecutando')
 
         # ordenar por el peso de los documentos
-        scraperLinks = sorted(scraperLinks, key=lambda k: k['totalScore'], reverse=True)
+        self.rankear(scraperLinks)
+        scraperLinks = sorted(scraperLinks, key=lambda k: k['totalScore'])
+        self.fileGenerator.remove_all_files(REPOSITORY_PATH,directorio)
         for link in scraperLinks[:50]:
             if not progress.get_stop():
                 step+=1
@@ -58,13 +60,33 @@ class WebScraperClass:
                     fileNameDocument += ".pdf"
                 else:
                     fileNameDocument += ".html"
-                self.fileGenerator.json(fileNameJson,fileNameDocument,link['link'],link['totalScore'],id_request,directorio)
+                self.fileGenerator.json(link,fileNameJson,fileNameDocument,link['link'],link['totalScore'],id_request,directorio)
             else:
                 progress.set_scrapingState('Detenido')
                 print 'Detenido'
                 break
         if not progress.get_stop():
             progress.set_scrapingState('Finalizado')
+    def rankear(self,scraperLinks):
+        scraperLinks = sorted(scraperLinks, key=lambda k: k['weight_WA'], reverse=True)
+        print "WA"
+        for indice,link in enumerate(scraperLinks):
+            link['totalScore'] = indice
+        scraperLinks = sorted(scraperLinks, key=lambda k: k['weight_CRANK'], reverse=True)
+        print
+        print "weight_CRANK"
+        for indice,link in enumerate(scraperLinks):
+            link['totalScore'] += indice
+        scraperLinks = sorted(scraperLinks, key=lambda k: k['weight_VSM'], reverse=True)
+        print
+        print "weight_VSM"
+        for indice,link in enumerate(scraperLinks):
+            link['totalScore'] += indice
+        scraperLinks = sorted(scraperLinks, key=lambda k: k['weight_OKAPI'], reverse=True)
+        print
+        print "weight_OKAPI"
+        for indice,link in enumerate(scraperLinks):
+            link['totalScore'] += indice
 
 
 class FileGenerator:
@@ -72,7 +94,7 @@ class FileGenerator:
     def __init__(self):
         pass
 
-    def json(self,fileNameJson,fileNameDocument,link,weight,id_request,directorio):
+    def json(self,minePackageLink,fileNameJson,fileNameDocument,link,weight,id_request,directorio):
         document={}
         webContent={}
         contentList=[]
@@ -82,8 +104,9 @@ class FileGenerator:
         webContent["id_request"] = id_request
         contentList.append(webContent)
         document["document"]=contentList
+
         self.write_json(fileNameJson,document,directorio)
-        self.write_file(fileNameDocument,directorio,link)
+        self.write_file(minePackageLink,fileNameDocument,directorio,link)
 
     def write_json(self,fileName, structure , directorio):
         ruta = REPOSITORY_PATH
@@ -91,9 +114,26 @@ class FileGenerator:
         f = open(ruta+directorio+"/"+fileName, mode='w')
         json.dump(structure, f, indent=2)
 
-    def write_file(self,fileName , directorio,link):
+    def remove_all_files(self,ruta,directorio):
+        import os, shutil
+        folder = ruta + directorio
+        if os.path.exists(folder):
+            for the_file in os.listdir(folder):
+                file_path = os.path.join(folder, the_file)
+                try:
+                    if os.path.isfile(file_path):
+                        os.unlink(file_path)
+                    #elif os.path.isdir(file_path): shutil.rmtree(file_path)
+                except Exception as e:
+                    print(e)
+                    pass
+
+
+
+    def write_file(self,minePackageLink,fileName , directorio,link):
         ruta = REPOSITORY_PATH
         self.crearDirectorio(ruta,directorio)
+
         if "pdf" in fileName:
             url = URL(link).download()
             document = open (ruta+directorio+"/"+fileName,'w')
@@ -101,7 +141,11 @@ class FileGenerator:
             document.close()
         else:
             try:
-                contenido = self.descargarContenido(link)
+                # contenido = self.descargarContenido(link)
+
+                contenido =  minePackageLink['methodData'].contenidoConEtiquetas
+                if contenido == None:
+                    contenido = self.descargarContenido(minePackageLink['link'])
                 f = open(ruta+directorio+"/"+fileName, mode='w')
                 json.dump(contenido, f, indent=2)
                 f.close()

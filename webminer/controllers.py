@@ -10,6 +10,8 @@ from pattern.web import URL
 from search.engines import *
 from webCrawler.tools import *
 from models.ORM_functions import *
+from algorithms.retrievalAlgorithms import *
+from algorithms.tools.algorithmTools import MethodData
 
 class Controller(object):
     def __init__(self,progress):
@@ -17,6 +19,8 @@ class Controller(object):
         self.progress=progress
     def getProgress(self):
         return self.progress
+
+
 
 class EngineSearchController(Controller):
 
@@ -56,58 +60,75 @@ class EngineSearchController(Controller):
 
 class CrawlerController(Controller):
 
-    def __init__(self,progress):
+    def __init__(self,progress,directorio,id_request):
         super(CrawlerController,self).__init__(progress)
+        self.IRController=InformationRetrievalController(self.progress)
+        self.scraperController=ScraperController(self.progress)
         self.stop=False
+        self.directorio = directorio
+        self.id_request = id_request
 
-    def start(self,links,cloudSize,searchKey):
-        self.progress.set_totalCrawling(len(links))
-        self.progress.set_crawlerState('Ejecutando')
-        clouds=[]
+    def trueNodesSelection(self,cloud):
+        in_true=list()
+        for n in cloud.graph.nodes():
+            nod=cloud.graph.node[n]
+            if nod['select']==True:
+                in_true.append(n)
+        return in_true
+
+    def start(self,minePackage):
+        self.progress.set_crawlerState('Ejecutandose')
+        crawlerPackage=dict()
+        cloudSize=minePackage['cloudSize']
+        searchKey=minePackage['searchKey']
         step=0
-        for link in links:
-            if not self.progress.get_stop():
-                crawler7 = SimpleCrawler1(link,delay=0.1)
-                crawler7.newStructure()
-                print "WEB CRAWLER "+"-" * 50
-                time=0
-                try:
-                    while len(crawler7.visited)<cloudSize:
-                        if not self.progress.get_stop():
-                            crawler7.crawl(method=DEPTH)
-                            #crawler7.crawl(method=BREADTH)
-                            time+=1
-                            #if crawler7.getSocial()==1:
-                            #    cloudSize+=1
-                            #    crawler7.setSocial()
-                            if time>cloudSize*10:
-                                break
-                        else:
-                            #print "PROCESO DETENIDO!"
-                            break
+        while not self.progress.get_stop():
+            clouds=minePackage['clouds']
+            for cloud in clouds:
+                true_nodes=self.trueNodesSelection(cloud)
+                for n in true_nodes:
+                    cloud.graph.node[n]['select']=False
                     if not self.progress.get_stop():
-                        url=URL(link.pop(0))
-                        clouds.append(Structure((crawler7.getStructure()).copy(), url.domain))
-                        step+=1
-                        self.progress.set_crawlerProgress(step)
+                        crawler7 = SimpleCrawler1(n,delay=0.1)
+                        crawler7.newStructure(cloud.graph)
+                        print "WEB CRAWLER "+"-" * 50
+                        time=0
+                        #try:
+                        while len(crawler7.visited)<cloudSize:
+                                if not self.progress.get_stop():
+                                    print "Explorando ..."
+                                    crawler7.crawl(method=DEPTH)
+                                    time+=1
+                                    if time>cloudSize*10:
+                                        break
+                                else:
+                                    #print "PROCESO DETENIDO!"
+                                    break
                         print
-                except ValueError:
-                    logging.warning('%s','ValueError: Invalid IPv6 URL')
-                    logging.critical(u'Error crítico -- cerrando')
-                    break
-                except Exception, e:
-                    print e
-                    logging.critical(u'Error crítico -- cerrando')
-                    break
+                        print "### GENERANDO DOCUMENTOS ###"
+                        self.IRController.start(minePackage)
+                        self.scraperController.start(minePackage,self.directorio,self.id_request)
+                        print
+                        if not self.progress.get_stop():
+                                step+=1
+                                self.progress.set_crawlerProgress(step)
+                        #except ValueError:
+                            #logging.warning('%s','ValueError: Invalid IPv6 URL')
+                            #logging.critical(u'Error crítico -- cerrando')
+                            #break
+                        #except:
+                            #logging.critical(u'Error crítico -- cerrando')
+                            #break
+                    else:
+                        #print 'PROCESO DETENIDO!'
+                        break
+            if not self.progress.get_stop():
+                print "ITERACION DEL CRAWLER FINALIZADA"
             else:
-                print 'PROCESO DETENIDO!'
-                break
+                self.progress.set_crawlerState('Detenido')
+
         if not self.progress.get_stop():
-            minePackage={'clouds':clouds,'searchKey':searchKey,}
             self.progress.set_crawlerState('Finalizado')
-            return minePackage
-        else:
-            self.progress.set_crawlerState('Detenido')
 
 
 
@@ -134,15 +155,24 @@ class InformationRetrievalController(Controller):
     def __init__(self,progress):
         super(InformationRetrievalController,self).__init__(progress)
 
-    def start(self,minePackage,pattern_methods,own_methods):
-
+    def start(self,minePackage):
+        self.descargarContenido(minePackage)
+        pattern_methods=[VectorSpaceModel('Vector Space Model')]
+        own_methods=[WeightedApproach('Weighted Approach'),Okapi('Okapi-BM25'),CRank('CRank')]
         for algorithm in pattern_methods:
             algorithm.run(minePackage,self.progress)
 
         for algorithm in own_methods:
             algorithm.run(minePackage,self.progress)
 
-
+    def descargarContenido(self,minePackage):
+        clouds = minePackage['clouds']
+        for cloud in clouds:
+            for n in cloud.graph.nodes():
+                if(cloud.graph.node[n]['methodData']==None):
+                    unMethodData = MethodData("",cloud.graph.node[n]['link'])
+                    cloud.graph.node[n]['methodData'] = unMethodData
+                
 
 class StorageController(Controller):
 
@@ -195,33 +225,21 @@ class ScraperController(Controller):
         self.scraper=WebScraperClass()
 
     def start(self,minePackage,directorio,id_request):
+
         scraperLinks=[]
         clouds=minePackage['clouds']
-        totalLinks = list()
         for cloud in clouds:
-            for link in cloud.graph.nodes():
-                totalLinks.append(link)
-
-        totalLinks = set(totalLinks)
-        auxiliarScraperLinks = list()
-
-        for cloud in clouds:
-            for n in cloud.graph.nodes():
-                if cloud.graph.node[n]['link'] in auxiliarScraperLinks:
-                    pass
-                else:
-                     scraperLinks.append(cloud.graph.node[n])
-                     auxiliarScraperLinks.append(cloud.graph.node[n]['link'])
-
-
-        # for n in totalLinks:
-        #     if not self.progress.get_stop():
-        #         scraperLinks.append(cloud.graph.node[n])
-        #     else:
-        #         self.progress.set_scrapingState('Detenido')
-        #         break
-
+            if not self.progress.get_stop():
+                for n in cloud.graph.nodes():
+                    if not self.progress.get_stop():
+                        scraperLinks.append(cloud.graph.node[n])
+                    else:
+                        self.progress.set_scrapingState('Detenido')
+                        break
+            else:
+                break
         if not self.progress.get_stop():
             self.scraper.start(scraperLinks,self.progress,directorio,id_request)
         else:
             self.progress.set_scrapingState('Detenido')
+###END###

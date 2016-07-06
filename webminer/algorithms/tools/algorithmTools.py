@@ -16,13 +16,15 @@ class QueryProcessor:
         print '####SEARCH_KEY:',minePackage['searchKey']
         s = Sentence(parse(minePackage['searchKey']))
         minePackage['searchKey']=count(words(s), stemmer=PORTER)
-
+        return minePackage['searchKey']
 
 
 class UrlToPlainText:
     def __init__(self):
         pass
     def plainTextConverter(self,link):
+        reload(sys)
+        sys.setdefaultencoding('utf-8')
         url=URL(link)
         if url.mimetype in MIMETYPE_PDF:
             document = open ('temp.pdf','w')
@@ -36,16 +38,26 @@ class UrlToPlainText:
         else:
             page = URL(url).download(user_agent='Mozilla/5')
             txtContent=plaintext(page, keep={})
+
         return txtContent
 
 
 
 class MethodData:
     data=None
-    def __init__(self,data):
-        self.data=data
+    contenido=None
+    contenidoConEtiquetas=None
+    def __init__(self , data, url=""):
+        if url != "":
+            urlContent = UrlToPlainText()
+            self.contenido = urlContent.plainTextConverter(url)
+        else:
+            self.contenido = ""
+        self.data = count(words(Sentence(parse(self.contenido))), stemmer=PORTER)
     def getData(self):
         return self.data
+    def getContent(self):
+        return self.contenido
 
 
 
@@ -82,9 +94,8 @@ class VectorSimilarity:# Similitud vectorial con distancia del coseno, metodo VS
             if not progress.get_stop():
                 for n in cloud.graph.nodes():
                     if not progress.get_stop():
-                        doc=MethodData(Document(urlContent.plainTextConverter(cloud.graph.node[n]['link'])))
-                        cloud.graph.node[n]['methodData']=doc
-                        webDocuments.append(doc.getData())
+                        doc=cloud.graph.node[n]['methodData']
+                        webDocuments.append(Document(doc.getData()))
                         step+=1
                         progress.set_IRProgress(step)#Progreso del proceso paso a paso
                     else:
@@ -96,7 +107,7 @@ class VectorSimilarity:# Similitud vectorial con distancia del coseno, metodo VS
             for cloud in clouds:
                 for n in cloud.graph.nodes():
                     methodData=cloud.graph.node[n]['methodData']
-                    vector=methodData.getData()
+                    vector=Document(methodData.getData())
                     cloud.graph.node[n]['weight_VSM']=m.similarity(vector,query)
 
 
@@ -153,24 +164,39 @@ class WeightingProccess:# Calculo de relevancia del metodo de enfoque ponderado
         an=0.0 #acierto negativo
         alpha=1.00
         beta=0.75
-        gamma=0.50
-        dictionary=DomainDictionary(open(os.path.dirname(__file__) + "/dictionary.txt",'r'))
+        gamma=0.25
+        dictionary= open(os.path.dirname(__file__) + "/dictionary.txt",'r').read()
+        dictionary = Document(dictionary, stemmer = PORTER)
         clouds=minePackage['clouds']
-        query=minePackage['searchKey']
+        query=minePackage['searchKeyStemmer']
         for cloud in clouds:
             for n in cloud.graph.nodes():
                 methodData=cloud.graph.node[n]['methodData']
-                document=methodData.getData()
-                for t in document:
-                    tf=document[t]
-                    if t in query:
-                        ac+=tf
+                # document=methodData.getData()
+                # for t in document:
+                #     tf=document[t]
+                #     if t in query:
+                #         print "entroooooooooooooooooo"
+                #         ac+=tf
+                #     else:
+                #         if t in dictionary:#creo que me olvide de hacer stemming a las palabras del diccionario
+                #             ap+=tf
+                #         else:
+                #             an+=tf
+                content = Document(methodData.getContent(),stemmer = PORTER)
+                for doc in content.keywords(top=200,normalized=True):
+                    if doc[1] in query:
+                        ac += doc[0]
                     else:
-                        if dictionary.validate(t):#creo que me olvide de hacer stemming a las palabras del diccionario
-                            ap+=tf
+                        if doc[1] in dictionary.words:
+                            ap += doc[0]
                         else:
-                            an+=tf
-                cloud.graph.node[n]['weight_WA']=((ac*alpha)+(ap*beta)+(an*gamma))/(ac+ap+an)
+                            an += doc[0]
+                if ac+ap+an > 0:
+                    cloud.graph.node[n]['weight_WA']=((ac*alpha)+(ap*beta)+(an*gamma))/(ac+ap+an)
+                else:
+                    cloud.graph.node[n]['weight_WA']=0
+
                 #print cloud.graph.node[n]['weight']
 
 #urlContent=UrlToPlainText()

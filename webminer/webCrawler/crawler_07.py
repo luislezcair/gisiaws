@@ -49,9 +49,20 @@ class SimpleCrawler1(Crawler):
             pass
         else:
             print str(self.count)," VISITING:", linkUrl, " <----- FROM:", linkReferrer
-            self.structure.add_node(linkUrl, ID=self.count, weight_VSM=0.0, weight_WA=0.0, weight_OKAPI=0.0, weight_SVM=0.0, weight_CRANK=0.0, totalScore=0.0, link=linkUrl, methodData=None)
-            self.count+=1
+            self.structure.add_node(linkUrl,
+                                    select=True,
+                                    ID=0,
+                                    weight_VSM=0.0,
+                                    weight_WA=0.0,
+                                    weight_OKAPI=0.0,
+                                    weight_SVM=0.0,
+                                    weight_CRANK=0.0,
+                                    totalScore=0.0,
+                                    link=linkUrl,
+                                    methodData=None)
+            self.count+=1 
             if linkReferrer!='':
+                self.structure.node[linkReferrer]['select']=False
                 self.structure.add_edge(linkReferrer,linkUrl)
 
     def fail(self, link):
@@ -59,34 +70,38 @@ class SimpleCrawler1(Crawler):
         pdf=url.mimetype in MIMETYPE_PDF
         if pdf:
             print str(self.count)," VISITING:", link.url, " <----- FROM:", link.referrer
-            self.structure.add_node(link.url, ID=self.count, weight_VSM=0.0, weight_WA=0.0, weight_OKAPI=0.0, weight_SVM=0.0, weight_CRANK=0.0,totalScore=0.0 ,link=link.url, methodData=None)
+            self.structure.add_node(link.url,
+                                    select=False,
+                                    ID=0,
+                                    weight_VSM=0.0,
+                                    weight_WA=0.0,
+                                    weight_OKAPI=0.0,
+                                    weight_SVM=0.0,
+                                    weight_CRANK=0.0,
+                                    totalScore=0.0,
+                                    link=link.url,
+                                    methodData=None)
             if link.referrer!='':
+                self.structure.node[link.referrer]['select']=False
                 self.structure.add_edge(link.referrer,link.url)
             self.count+=1
         else:
             print "failed: ", link.url
+            if link.url in self.structure.nodes():
+                self.structure.remove_node(link.url)
 
-    def priority(self, link, method=DEPTH):
-        #if "linkedin" in link.url or "twitter" in link.url or "facebook" in link.url or "google" in link.url:
-        if self.badLink.detect(link.url):
-            return 0.0
-        else:
-            return Crawler.priority(self, link, method)
+#    def priority(self, link, method=DEPTH):
+#        #if "linkedin" in link.url or "twitter" in link.url or "facebook" in link.url or "google" in link.url:
+#        if self.badLink.detect(link.url):
+#            return 0.0
+#        else:
+#            return Crawler.priority(self, link, method)
 
-    def newStructure(self):
-        self.structure=nx.DiGraph()
-
+    def newStructure(self,graph):
+        self.structure=graph
+    
     def getStructure(self):
         return self.structure
+    
 
-    def getSocial(self):
-        return self.social
-    def setSocial(self):
-        self.social=0
-
-'''#PRUEBA:
-crawler1 = SimpleCrawler1(links=["http://turismomisiones.com"], domains=["com"], delay=0.0)
-
-while len(crawler1.visited) < 200:
-    crawler1.crawl(cached=False, method=BREADTH ,sort=FIFO)
-'''
+#####END###

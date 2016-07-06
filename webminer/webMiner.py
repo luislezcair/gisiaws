@@ -1,24 +1,37 @@
-import threading, time
-import csv, operator
+import threading, time, csv, operator
 from optparse import OptionParser
+import networkx as nx
+from pattern.web import URL
 from progress import *
 from controllers import *
 from search.testLinks import TestLinksClass #solo para hacer pruebas sin motor de busqueda
 from draw.twoDimensionalDrawing import *
 from algorithms.retrievalAlgorithms import *
+from algorithms.tools.algorithmTools import QueryProcessor
+
+class Structure:#es un clase auxiliar para encapsular una estructura.
+
+    def  __init__(self,graph,domain):
+        self.graph=graph
+        self.domain=domain
+    def getGraph(self):
+        return self.graph
+    def getDomain(self):
+        return self.domain
+
 
 class WebMinerController(object):
 
-    def __init__(self,cloudSize = 25,searchKey = "" ,id_request = 0, urls = [] , directorio = ""):
+    def __init__(self,cloudSize = 50,searchKey = "" ,id_request = 0, urls = [] , directorio = ""):
         super(WebMinerController, self).__init__()
         self.progress=Process(id_request)
-
+        self.minePackage=dict()
         self.searchKey=searchKey
         self.n=0
         self.directorio = directorio
         self.cloudSize=cloudSize
         self.engineSearchController=EngineSearchController(self.progress)
-        self.crawlerController=CrawlerController(self.progress)
+        self.crawlerController=CrawlerController(self.progress,directorio,id_request)
         self.MEGA_CrawlerController=MEGA_CrawlerController(self.progress)
         self.IRController=InformationRetrievalController(self.progress)
         self.storageController=StorageController(self.progress)
@@ -28,13 +41,13 @@ class WebMinerController(object):
 
 
     def run(self):
-        print self.searchKey
-        print self.cloudSize
-        self.minePackage=self.crawler()
-        if not self.progress.get_stop():
-            self.informationRetrieval(self.minePackage)
-        if not self.progress.get_stop():
-            self.scraper(self.minePackage)
+        self.minePackage['searchKey']=self.searchKey
+        unProcessor = QueryProcessor()
+        self.minePackage['searchKeyStemmer'] = unProcessor.processor(self.minePackage)#Se tokeniza la query
+
+        self.minePackage['cloudSize']=self.cloudSize
+        self.minePackage['clouds']=self.startClouds(self.urls)
+        self.crawler()
 
     def stopWebMiner(self):
         self.progress.set_stop(True)
@@ -42,15 +55,61 @@ class WebMinerController(object):
         self.progress.set_IRState('Detenido')
         self.progress.set_scrapingState('Detenido')
 
+    def startClouds(self,urls):
+        clouds=list()
+        for n in urls:
+            url=URL(n[0])
+            graph=nx.DiGraph()
+            graph.add_node(n[0],
+                           select=True,
+                           ID=0,
+                           weight_VSM=0.0,
+                           weight_WA=0.0,
+                           weight_OKAPI=0.0,
+                           weight_SVM=0.0,
+                           weight_CRANK=0.0,
+                           totalScore=0.0,
+                           link=n[0],
+                           methodData=None,
+                           )
+            clouds.append(Structure(graph,url.domain))
+        return clouds
+
+
+    def stopWebMiner(self):
+        #self.progress.set_running(False)
+        self.progress.set_stop(True)
+        self.progress.set_crawlerState('Detenido')
+        self.progress.set_IRState('Detenido')
+        self.progress.set_scrapingState('Detenido')
+
+    #def setStop(self):
+    #    self.progress.set_stop(False)
+    #    #self.progress.set_running(True)
+
+    def search(self):
+        if self.test:
+            urls=TestLinksClass()
+            links=urls.getTestLinks(self.numOfClouds)
+            return links
+        else:
+            print "##### ",self.searchKey
+            urls=self.engineSearchController.start(self.searchKey)
+            #j=0
+            #for l in urls:
+            #    j+=1
+            #    print j,'-',l
+            return urls
+
     def crawler(self):
-        return self.crawlerController.start(self.urls,self.cloudSize,self.searchKey)
+        self.crawlerController.start(self.minePackage)
 
     def MEGA_cloud(self,minePackage,enlaces):# enlaces: es la cantidad de enlaces aleatorios que se crearan
         self.MEGA_CrawlerController.start(minePackage,enlaces)
 
-    def informationRetrieval(self,minePackage):
-        pattern_methods=[VectorSpaceModel('Vector Space Model')]
-        own_methods=[WeightedApproach('Weighted Approach'),Okapi('Okapi-BM25')]
+    def informationRetrieval(self):
+        self.IRController.start(self.minePackage)
+
         self.IRController.start(minePackage,pattern_methods,own_methods)
 
     def scraper(self,minePackage):
@@ -184,6 +243,6 @@ if __name__ == '__main__':
             urlAux.append(url.url)
             urls.append(urlAux)
         flush()
-        
+
     wm = WebMinerController(id_request = request_id , searchKey = consulta,  urls = urls , directorio = nombre_directorio)
     wm.run()

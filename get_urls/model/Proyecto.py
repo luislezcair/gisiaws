@@ -63,7 +63,6 @@ class Proyecto:
         data_json = {}
         data_json['id_proyecto'] = self.id
         data_json['buscadores'] = []
-
         data_json['buscadores'].append(self.crear_buscador_json("Google", self.url_google))
         data_json['buscadores'].append(self.crear_buscador_json("Bing", self.url_bing))
         data_json['buscadores'].append(self.crear_buscador_json("Excite", self.url_excite))
