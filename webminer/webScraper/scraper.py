@@ -144,13 +144,17 @@ class FileGenerator:
                 # contenido = self.descargarContenido(link)
 
                 contenido =  minePackageLink['methodData'].contenidoConEtiquetas
-                if contenido == None:
-                    contenido = self.descargarContenido(minePackageLink['link'])
+                try:
+                    if contenido == None:
+                        contenido = self.descargarContenido(minePackageLink['link'])
+                except:
+                    contenido = ""
+                    pass
                 f = open(ruta+directorio+"/"+fileName, mode='w')
                 json.dump(contenido, f, indent=2)
                 f.close()
             except:
-                print "Excepcion al descargar archivo --> " + link
+                print "Excepcion escribir archivo --> " + link
                 pass;
 
     def html(self,content):

@@ -26,19 +26,22 @@ class UrlToPlainText:
         reload(sys)
         sys.setdefaultencoding('utf-8')
         url=URL(link)
-        if url.mimetype in MIMETYPE_PDF:
-            document = open ('temp.pdf','w')
-            document.close()
-            download = url.download()
-            document = open('temp.pdf','a')
-            document.write(download)
-            document.close()
-            #txtContent=os.system('pdf2txt.py temp.pdf')
-            txtContent=commands.getoutput('pdf2txt.py temp.pdf')
-        else:
-            page = URL(url).download(user_agent='Mozilla/5')
-            txtContent=plaintext(page, keep={})
-
+        txtContent =""
+        try:
+            if url.mimetype in MIMETYPE_PDF:
+                document = open ('temp.pdf','w')
+                document.close()
+                download = url.download()
+                document = open('temp.pdf','a')
+                document.write(download)
+                document.close()
+                #txtContent=os.system('pdf2txt.py temp.pdf')
+                txtContent=commands.getoutput('pdf2txt.py temp.pdf')
+            else:
+                page = URL(url).download(user_agent='Mozilla/5')
+                txtContent=plaintext(page, keep={})
+        except:
+            pass
         return txtContent
 
 
