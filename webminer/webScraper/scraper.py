@@ -4,6 +4,8 @@ import os
 import commands
 import json
 from pattern.web import URL, plaintext, MIMETYPE_PDF
+import glob
+import itertools
 
 try:
     from settings_local import *
@@ -47,11 +49,18 @@ class WebScraperClass:
         # ordenar por el peso de los documentos
         self.rankear(scraperLinks)
         scraperLinks = sorted(scraperLinks, key=lambda k: k['totalScore'])
-        self.fileGenerator.remove_all_files(REPOSITORY_PATH,directorio)
+        # self.fileGenerator.remove_all_files(REPOSITORY_PATH,directorio)
+        # archivosTop50 = self.getTop50Almacenados(directorio)
+
+
+
         for link in scraperLinks[:50]:
             if not progress.get_stop():
                 step+=1
                 progress.set_scrapingProgress(step)
+
+                print link['link']
+
                 url=URL(link['link'])
                 fileNameJson = str(step).zfill(2)+"_"+url.domain+'.json'
                 fileNameDocument = str(step).zfill(2)+"_"+url.domain
@@ -67,16 +76,17 @@ class WebScraperClass:
                 break
         if not progress.get_stop():
             progress.set_scrapingState('Finalizado')
+
     def rankear(self,scraperLinks):
         scraperLinks = sorted(scraperLinks, key=lambda k: k['weight_WA'], reverse=True)
         print "WA"
         for indice,link in enumerate(scraperLinks):
             link['totalScore'] = indice
-        scraperLinks = sorted(scraperLinks, key=lambda k: k['weight_CRANK'], reverse=True)
-        print
-        print "weight_CRANK"
-        for indice,link in enumerate(scraperLinks):
-            link['totalScore'] += indice
+        # scraperLinks = sorted(scraperLinks, key=lambda k: k['weight_CRANK'], reverse=True)
+        # print
+        # print "weight_CRANK"
+        # for indice,link in enumerate(scraperLinks):
+        #     link['totalScore'] += indice
         scraperLinks = sorted(scraperLinks, key=lambda k: k['weight_VSM'], reverse=True)
         print
         print "weight_VSM"
@@ -88,6 +98,23 @@ class WebScraperClass:
         for indice,link in enumerate(scraperLinks):
             link['totalScore'] += indice
 
+    def getTop50Almacenados(self,directorio):
+        print "entro"
+        archivos = list()
+        path = REPOSITORY_PATH+directorio+"/"
+        if os.path.isdir(path) == True:
+            os.chdir(path)
+            for file in glob.glob("*.json"):
+                archivos.append(file)
+            archivos = sorted(archivos)
+        return archivos
+
+    def ifExistInScraperLinks(self,url,scraperLinks):
+        for indice, link in enumerate(scraperLinks):
+            print link
+            if url in link['link']:
+                return indice
+        return -1
 
 class FileGenerator:
 
@@ -147,8 +174,7 @@ class FileGenerator:
                 try:
                     if contenido == None:
                         contenido = self.descargarContenido(minePackageLink['link'])
-                except:
-                    contenido = ""
+                except Exception as e:
                     pass
                 f = open(ruta+directorio+"/"+fileName, mode='w')
                 json.dump(contenido, f, indent=2)

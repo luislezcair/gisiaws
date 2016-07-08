@@ -22,7 +22,7 @@ class Structure:#es un clase auxiliar para encapsular una estructura.
 
 class WebMinerController(object):
 
-    def __init__(self,cloudSize = 10,searchKey = "" ,id_request = 0, urls = [] , directorio = ""):
+    def __init__(self,cloudSize = 50,searchKey = "" ,id_request = 0, urls = [] , directorio = ""):
         super(WebMinerController, self).__init__()
         self.progress=Process(id_request)
         self.minePackage=dict()
@@ -239,6 +239,7 @@ if __name__ == '__main__':
         for searchKey in searchkeys:
             consulta = consulta + str(searchKey.clave) + " "
 
+        consulta =  " ".join(filter(lambda x:x[0]!='-', consulta.split()))
         nombre_directorio = request.nombre_directorio
         # url_list tiene una lista de (orden, URL)
         url_list = request.urls.order_by(Url.orden)
