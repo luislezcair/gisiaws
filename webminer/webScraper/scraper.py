@@ -49,7 +49,7 @@ class WebScraperClass:
         # ordenar por el peso de los documentos
         self.rankear(scraperLinks)
         scraperLinks = sorted(scraperLinks, key=lambda k: k['totalScore'])
-        # self.fileGenerator.remove_all_files(REPOSITORY_PATH,directorio)
+        self.fileGenerator.remove_all_files(REPOSITORY_PATH,directorio)
         # archivosTop50 = self.getTop50Almacenados(directorio)
 
 
@@ -58,13 +58,9 @@ class WebScraperClass:
             if not progress.get_stop():
                 step+=1
                 progress.set_scrapingProgress(step)
-
-                print link['link']
-
                 url=URL(link['link'])
                 fileNameJson = str(step).zfill(2)+"_"+url.domain+'.json'
                 fileNameDocument = str(step).zfill(2)+"_"+url.domain
-
                 if url.mimetype in MIMETYPE_PDF:
                     fileNameDocument += ".pdf"
                 else:
@@ -78,15 +74,15 @@ class WebScraperClass:
             progress.set_scrapingState('Finalizado')
 
     def rankear(self,scraperLinks):
-        scraperLinks = sorted(scraperLinks, key=lambda k: k['weight_WA'], reverse=True)
-        print "WA"
-        for indice,link in enumerate(scraperLinks):
-            link['totalScore'] = indice
-        # scraperLinks = sorted(scraperLinks, key=lambda k: k['weight_CRANK'], reverse=True)
-        # print
-        # print "weight_CRANK"
+        # scraperLinks = sorted(scraperLinks, key=lambda k: k['weight_WA'], reverse=True)
+        # print "WA"
         # for indice,link in enumerate(scraperLinks):
-        #     link['totalScore'] += indice
+        #     link['totalScore'] = indice
+        scraperLinks = sorted(scraperLinks, key=lambda k: k['weight_CRANK'], reverse=True)
+        print
+        print "weight_CRANK"
+        for indice,link in enumerate(scraperLinks):
+            link['totalScore'] += indice
         scraperLinks = sorted(scraperLinks, key=lambda k: k['weight_VSM'], reverse=True)
         print
         print "weight_VSM"
