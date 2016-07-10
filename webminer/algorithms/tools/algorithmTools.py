@@ -22,7 +22,7 @@ class QueryProcessor:
 class UrlToPlainText:
     def __init__(self):
         pass
-    def plainTextConverter(self,link):
+    def plainTextConverter(self,link,metodo = "SinEtiquetas"):
         reload(sys)
         sys.setdefaultencoding('utf-8')
         url=URL(link)
@@ -39,7 +39,10 @@ class UrlToPlainText:
                 txtContent=commands.getoutput('pdf2txt.py temp.pdf')
             else:
                 page = URL(url).download(user_agent='Mozilla/5')
-                txtContent=plaintext(page, keep={})
+                if metodo == "mantenerEtiquetas":
+                    txtContent=plaintext(page, keep={'title':[],'h1':[], 'h2':[], 'strong':[]})
+                else:
+                    txtContent=plaintext(page, keep={})
         except:
             pass
         return txtContent
@@ -53,7 +56,8 @@ class MethodData:
     def __init__(self , data, url=""):
         if url != "":
             urlContent = UrlToPlainText()
-            self.contenido = urlContent.plainTextConverter(url)
+            self.contenidoConEtiquetas = urlContent.plainTextConverter(url,"mantenerEtiquetas")
+            self.contenido = plaintext(self.contenidoConEtiquetas,keep={})
         else:
             self.contenido = ""
         self.data = count(words(Sentence(parse(self.contenido))), stemmer=PORTER)

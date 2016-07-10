@@ -49,11 +49,9 @@ class WebScraperClass:
         # ordenar por el peso de los documentos
         self.rankear(scraperLinks)
         scraperLinks = sorted(scraperLinks, key=lambda k: k['totalScore'])
-        self.fileGenerator.remove_all_files(REPOSITORY_PATH,directorio)
-        # archivosTop50 = self.getTop50Almacenados(directorio)
 
 
-
+        progress.totalNodes = len(scraperLinks)
         for link in scraperLinks[:50]:
             if not progress.get_stop():
                 step+=1
@@ -94,23 +92,6 @@ class WebScraperClass:
         for indice,link in enumerate(scraperLinks):
             link['totalScore'] += indice
 
-    def getTop50Almacenados(self,directorio):
-        print "entro"
-        archivos = list()
-        path = REPOSITORY_PATH+directorio+"/"
-        if os.path.isdir(path) == True:
-            os.chdir(path)
-            for file in glob.glob("*.json"):
-                archivos.append(file)
-            archivos = sorted(archivos)
-        return archivos
-
-    def ifExistInScraperLinks(self,url,scraperLinks):
-        for indice, link in enumerate(scraperLinks):
-            print link
-            if url in link['link']:
-                return indice
-        return -1
 
 class FileGenerator:
 
@@ -128,30 +109,28 @@ class FileGenerator:
         contentList.append(webContent)
         document["document"]=contentList
 
-        self.write_json(fileNameJson,document,directorio)
         self.write_file(minePackageLink,fileNameDocument,directorio,link)
+        self.write_json(fileNameJson,document,directorio)
+
 
     def write_json(self,fileName, structure , directorio):
         ruta = REPOSITORY_PATH
         self.crearDirectorio(ruta,directorio)
         f = open(ruta+directorio+"/"+fileName, mode='w')
-        json.dump(structure, f, indent=2)
+        orden = fileName[:2]
 
-    def remove_all_files(self,ruta,directorio):
-        import os, shutil
-        folder = ruta + directorio
-        if os.path.exists(folder):
-            for the_file in os.listdir(folder):
-                file_path = os.path.join(folder, the_file)
+        os.chdir(ruta+directorio)
+        for file in glob.glob(orden+"_*.json"):
+            if(file != fileName):
+                print file
+                fEliminar = open(ruta+directorio+"/"+file,'r')
+                archivo = json.loads(fEliminar.read())
                 try:
-                    if os.path.isfile(file_path):
-                        os.unlink(file_path)
-                    #elif os.path.isdir(file_path): shutil.rmtree(file_path)
-                except Exception as e:
-                    print(e)
+                    os.remove(ruta+directorio+"/"+archivo['document'][0]['filename'])
+                except:
                     pass
-
-
+                os.remove(ruta+directorio+"/"+file)
+        json.dump(structure, f, indent=2)
 
     def write_file(self,minePackageLink,fileName , directorio,link):
         ruta = REPOSITORY_PATH
@@ -164,8 +143,6 @@ class FileGenerator:
             document.close()
         else:
             try:
-                # contenido = self.descargarContenido(link)
-
                 contenido =  minePackageLink['methodData'].contenidoConEtiquetas
                 try:
                     if contenido == None:
