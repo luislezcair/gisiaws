@@ -84,30 +84,32 @@ class CrawlerController(Controller):
         while not self.progress.get_stop():
             clouds=minePackage['clouds']
             for cloud in clouds:
+
                 true_nodes=self.trueNodesSelection(cloud)
                 for n in true_nodes:
                     cloud.graph.node[n]['select']=False
                     if not self.progress.get_stop():
                         crawler7 = SimpleCrawler1(n,delay=0.1)
                         crawler7.newStructure(cloud.graph)
-                        print "WEB CRAWLER "+"-" * 50
                         time=0
                         #try:
+
+                        sizeNube = len(cloud.graph.nodes())
                         while len(crawler7.visited)<cloudSize:
                                 if not self.progress.get_stop():
                                     print "Explorando ..."
-                                    crawler7.crawl(method=DEPTH)
+                                    crawler7.crawl(method=None)
                                     time+=1
                                     if time>cloudSize*10:
                                         break
                                 else:
                                     #print "PROCESO DETENIDO!"
                                     break
-                        print
-                        print "### GENERANDO DOCUMENTOS ###"
-                        self.IRController.start(minePackage)
-                        self.scraperController.start(minePackage,self.directorio,self.id_request)
-                        print
+
+                        if sizeNube != len(cloud.graph.nodes()):
+                            self.IRController.start(minePackage)
+                            self.scraperController.start(minePackage,self.directorio,self.id_request)
+
                         if not self.progress.get_stop():
                                 step+=1
                                 self.progress.set_crawlerProgress(step)

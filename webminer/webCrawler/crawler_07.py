@@ -60,7 +60,7 @@ class SimpleCrawler1(Crawler):
                                     totalScore=0.0,
                                     link=linkUrl,
                                     methodData=None)
-            self.count+=1 
+            self.count+=1
             if linkReferrer!='':
                 self.structure.node[linkReferrer]['select']=False
                 self.structure.add_edge(linkReferrer,linkUrl)
@@ -81,6 +81,11 @@ class SimpleCrawler1(Crawler):
                                     totalScore=0.0,
                                     link=link.url,
                                     methodData=None)
+
+            if '#' in link.referrer:
+                partRef=link.referrer.partition('#')
+                link.referrer=unicode(partRef[0])
+
             if link.referrer!='':
                 self.structure.node[link.referrer]['select']=False
                 self.structure.add_edge(link.referrer,link.url)
@@ -90,18 +95,18 @@ class SimpleCrawler1(Crawler):
             if link.url in self.structure.nodes():
                 self.structure.remove_node(link.url)
 
-#    def priority(self, link, method=DEPTH):
-#        #if "linkedin" in link.url or "twitter" in link.url or "facebook" in link.url or "google" in link.url:
-#        if self.badLink.detect(link.url):
-#            return 0.0
-#        else:
-#            return Crawler.priority(self, link, method)
+    def priority(self, link, method=None):
+       #if "linkedin" in link.url or "twitter" in link.url or "facebook" in link.url or "google" in link.url:
+       if self.badLink.detect(link.url):
+           return 0.1
+       else:
+           return Crawler.priority(self, link, method)
 
     def newStructure(self,graph):
         self.structure=graph
-    
+
     def getStructure(self):
         return self.structure
-    
+
 
 #####END###
