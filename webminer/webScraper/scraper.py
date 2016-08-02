@@ -3,7 +3,7 @@
 import os
 import commands
 import json
-from pattern.web import URL, plaintext, MIMETYPE_PDF
+from pattern.web import URL, plaintext, MIMETYPE_PDF,extension
 import glob
 import itertools
 
@@ -41,15 +41,14 @@ class WebScraperClass:
         txtContent=commands.getoutput('pdf2txt.py temp.pdf')
         return txtContent
 
-    def start(self,scraperLinks,progress,directorio,id_request):
+    def start(self,scraperLinks,progress,directorio,id_request,searchKey):
         step=0
         progress.set_totalScraping(len(scraperLinks))
         progress.set_scrapingState('Ejecutando')
 
         # ordenar por el peso de los documentos
-        self.rankear(scraperLinks)
+        self.rankear(scraperLinks,searchKey)
         scraperLinks = sorted(scraperLinks, key=lambda k: k['totalScore'])
-
 
         progress.totalNodes = len(scraperLinks)
         for link in scraperLinks[:50]:
@@ -79,11 +78,12 @@ class WebScraperClass:
         if not progress.get_stop():
             progress.set_scrapingState('Finalizado')
 
-    def rankear(self,scraperLinks):
-        # scraperLinks = sorted(scraperLinks, key=lambda k: k['weight_WA'], reverse=True)
-        # print "WA"
-        # for indice,link in enumerate(scraperLinks):
-        #     link['totalScore'] = indice
+    def rankear(self,scraperLinks,searchKey):
+        if "tea" in searchKey:
+            scraperLinks = sorted(scraperLinks, key=lambda k: k['weight_WA'], reverse=True)
+            print "WA"
+            for indice,link in enumerate(scraperLinks):
+                link['totalScore'] = indice
         scraperLinks = sorted(scraperLinks, key=lambda k: k['weight_CRANK'], reverse=True)
         print
         print "weight_CRANK"

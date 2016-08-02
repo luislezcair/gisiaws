@@ -240,7 +240,7 @@ class ScraperController(Controller):
             else:
                 break
         if not self.progress.get_stop():
-            self.scraper.start(scraperLinks,self.progress,directorio,id_request)
+            self.scraper.start(scraperLinks,self.progress,directorio,id_request,minePackage['searchKey'])
         else:
             self.progress.set_scrapingState('Detenido')
 ###END###
