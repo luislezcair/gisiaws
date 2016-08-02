@@ -75,7 +75,7 @@ class WebScraperClass:
 
                 try:
                     self.fileGenerator.json(link,fileNameJson,fileNameDocument,link['link'],link['totalScore'],id_request,directorio)
-                else:
+                except:
                     pass
             else:
                 progress.set_scrapingState('Detenido')
