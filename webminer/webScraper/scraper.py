@@ -3,7 +3,7 @@
 import os
 import commands
 import json
-from pattern.web import URL, plaintext, MIMETYPE_PDF, extension
+from pattern.web import URL, plaintext, MIMETYPE_PDF
 import glob
 import itertools
 
@@ -39,12 +39,6 @@ class WebScraperClass:
         document.close()
         #content=os.system('pdf2txt.py temp.pdf')
         txtContent=commands.getoutput('pdf2txt.py temp.pdf')
-        if os.path.isfile('temp.pdf'):
-            os.remove(myfile)
-            "print Elimino 2"
-        if os.path.isfile('/temp.pdf'):
-            os.remove(myfile)
-            print "elimino"
         return txtContent
 
     def start(self,scraperLinks,progress,directorio,id_request):
@@ -77,6 +71,7 @@ class WebScraperClass:
                     self.fileGenerator.json(link,fileNameJson,fileNameDocument,link['link'],link['totalScore'],id_request,directorio)
                 except:
                     pass
+
             else:
                 progress.set_scrapingState('Detenido')
                 print 'Detenido'
@@ -125,6 +120,7 @@ class FileGenerator:
         self.write_file(minePackageLink,fileNameDocument,directorio,link)
         self.write_json(fileNameJson,document,directorio)
 
+
     def write_json(self,fileName, structure , directorio):
         ruta = REPOSITORY_PATH
         self.crearDirectorio(ruta,directorio)
@@ -147,13 +143,12 @@ class FileGenerator:
     def write_file(self,minePackageLink,fileName , directorio,link):
         ruta = REPOSITORY_PATH
         self.crearDirectorio(ruta,directorio)
-        if ".pdf" in fileName:
-            print "Entro"
-            print ruta+directorio+"/"+fileName
-            url = URL(link)
-            f = open(ruta+directorio+"/"+fileName,'wb')
-            f.write(url.download(cached=False))
-            f.close()
+
+        if "pdf" in fileName:
+            url = URL(link).download()
+            document = open (ruta+directorio+"/"+fileName,'w')
+            document.write(url)
+            document.close()
         else:
             try:
                 contenido =  minePackageLink['methodData'].contenidoConEtiquetas
