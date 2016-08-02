@@ -98,6 +98,7 @@ class Process:
     #stop process, getters() and setters()
     def set_stop(self,stop):
         self.stop=stop
+        self.actualizarBdStop(self.stop)
     def get_stop(self):
         return self.stop
 
@@ -126,6 +127,20 @@ class Process:
         for x in range(0, 20):
           try:
               self.cursor.execute("UPDATE wsrequest_state SET estado=%s where search_keys ="+self.id_request,(progress,))
+              self.db.commit()
+          except:
+             time.sleep(1)
+          finally:
+             break
+
+    def actualizarBdStop(self,stop):
+        if stop == True:
+            stop = 1
+        else:
+            stop = 0
+        for x in range(0, 20):
+          try:
+              self.cursor.execute("UPDATE wsrequest_state SET stop=%s where search_keys ="+self.id_request,(stop,))
               self.db.commit()
           except:
              time.sleep(1)

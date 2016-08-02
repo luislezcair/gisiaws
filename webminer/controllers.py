@@ -92,19 +92,22 @@ class CrawlerController(Controller):
                         crawler7 = SimpleCrawler1(n,delay=0.1)
                         crawler7.newStructure(cloud.graph)
                         time=0
-                        #try:
-
-                        sizeNube = len(cloud.graph.nodes())
-                        while len(crawler7.visited)<cloudSize:
-                                if not self.progress.get_stop():
-                                    print "Explorando ..."
-                                    crawler7.crawl(method=None)
-                                    time+=1
-                                    if time>cloudSize*10:
+                        try:
+                            sizeNube = len(cloud.graph.nodes())
+                            result = 1/0
+                            while len(crawler7.visited)<cloudSize:
+                                    if not self.progress.get_stop():
+                                        print "Explorando ..."
+                                        crawler7.crawl(method=None)
+                                        time+=1
+                                        if time>cloudSize*10:
+                                            break
+                                    else:
                                         break
-                                else:
-                                    #print "PROCESO DETENIDO!"
-                                    break
+                        except:
+                            print "error"
+                            self.progress.set_stop(True)
+                            break
 
                         if sizeNube != len(cloud.graph.nodes()):
                             self.IRController.start(minePackage)
