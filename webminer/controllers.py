@@ -2,6 +2,7 @@
 import copy
 import pickle
 import logging
+import time
 from progress import *
 from webCrawler.crawler_07 import *
 from webCrawler.crawler_08 import *
@@ -126,7 +127,8 @@ class CrawlerController(Controller):
                         #print 'PROCESO DETENIDO!'
                         break
             if not self.progress.get_stop():
-                print "ITERACION DEL CRAWLER FINALIZADA"
+                print "No se encuentran mas Enlaces"
+                self.progress.set_stop(True)
             else:
                 self.progress.set_crawlerState('Detenido')
 
