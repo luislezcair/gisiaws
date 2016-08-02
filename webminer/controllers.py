@@ -94,7 +94,6 @@ class CrawlerController(Controller):
                         time=0
                         try:
                             sizeNube = len(cloud.graph.nodes())
-                            result = 1/0
                             while len(crawler7.visited)<cloudSize:
                                     if not self.progress.get_stop():
                                         print "Explorando ..."
