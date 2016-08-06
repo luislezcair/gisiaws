@@ -4,7 +4,7 @@ import re
 class Filter:
 
     def __init__(self):
-        self.badLinks='youtube|linkedin|wikipedia|amazon|books.google|facebook|twitter|instagram|plus.google|yahoo|ebay|ebayinc|flickr|t.co|.google.|youtu.be|microsoft|microsoftstore'
+        self.badLinks='youtube|linkedin|wikipedia|amazon|books.google|facebook|twitter|instagram|plus.google|yahoo|ebay|ebayinc|flickr|t.co|.google.|youtu.be|microsoft|microsoftstore|skype|tripadvisor|mercadolibre|mercadoshop|mercadoclick|mercadopago'
 
     def detect(self,link):
         url=URL(link)

@@ -49,28 +49,26 @@ class WebScraperClass:
         # ordenar por el peso de los documentos
         self.rankear(scraperLinks,searchKey)
         scraperLinks = sorted(scraperLinks, key=lambda k: k['totalScore'])
+        scraperLinks = self.unificarLista(scraperLinks)
+
 
         progress.totalNodes = len(scraperLinks)
-        for link in scraperLinks[:50]:
+        for link in scraperLinks:
             if not progress.get_stop():
                 step+=1
                 progress.set_scrapingProgress(step)
                 url=URL(link['link'])
                 fileNameJson = str(step).zfill(2)+"_"+url.domain+'.json'
                 fileNameDocument = str(step).zfill(2)+"_"+url.domain
-                if url.mimetype in MIMETYPE_PDF:
+                if extension(url.page) == ".pdf":
                     fileNameDocument += ".pdf"
                 else:
-                    if extension(url.page) == "pdf":
-                        fileNameDocumento += ".pdf"
-                    else:
-                        fileNameDocument += ".html"
-
+                    fileNameDocument += ".html"
                 try:
-                    self.fileGenerator.json(link,fileNameJson,fileNameDocument,link['link'],link['totalScore'],id_request,directorio)
-                except:
+                    self.fileGenerator.json(link,fileNameJson,fileNameDocument,link,id_request,directorio)
+                except Exception,e:
+                    print str(e)
                     pass
-
             else:
                 progress.set_scrapingState('Detenido')
                 print 'Detenido'
@@ -100,20 +98,52 @@ class WebScraperClass:
         for indice,link in enumerate(scraperLinks):
             link['totalScore'] += indice
 
+    def unificarLista(self,scraperLinks):
+        listaDominios = []
+        listaUrls = []
+        contador = 0
+        for unLink in scraperLinks:
+            if contador == 50:
+                return listaUrls
+            unaUrl = URL(unLink['link'])
+            dominio = unaUrl.domain
+            if dominio not in listaDominios:
+                print dominio
+                unLink['urlsDominio'] = []
+                listaDominios.append(dominio)
+                listaUrls.append(unLink)
+                contador +=1
+            else:
+                for unEnlace in listaUrls:
+                    otraUrl = URL(unEnlace['link'])
+                    otroDominio = otraUrl.domain
+                    if(dominio == otroDominio):
+                        unaUrlDominio = {}
+                        unaUrlDominio['url'] = unLink['link']
+                        unEnlace['urlsDominio'].append(unaUrlDominio['url'])
+        return listaUrls
 
+    def contarEnlaces(self,listaUrls):
+        contador = 0
+        for unaUrl in listaUrls:
+            for otraUrl in unaUrl['urlsDominio']:
+                contador += 1
+            contador+=1
+        return contador
 class FileGenerator:
 
     def __init__(self):
         pass
 
-    def json(self,minePackageLink,fileNameJson,fileNameDocument,link,weight,id_request,directorio):
+    def json(self,minePackageLink,fileNameJson,fileNameDocument,link,id_request,directorio):
         document={}
         webContent={}
         contentList=[]
-        webContent['url'] = link
-        webContent['weight'] = weight
+        webContent['url'] = link['link']
+        webContent['weight'] = link['totalScore']
         webContent["filename"]=fileNameDocument
         webContent["id_request"] = id_request
+        webContent['urlsDominio'] = link['urlsDominio']
         contentList.append(webContent)
         document["document"]=contentList
 
@@ -144,9 +174,9 @@ class FileGenerator:
         ruta = REPOSITORY_PATH
         self.crearDirectorio(ruta,directorio)
 
-        if "pdf" in fileName:
-            url = URL(link).download()
-            document = open (ruta+directorio+"/"+fileName,'w')
+        if ".pdf" in fileName:
+            url = URL(minePackageLink['link']).download(user_agent='Mozilla/5.0')
+            document = open(ruta+directorio+"/"+fileName,'w')
             document.write(url)
             document.close()
         else:
@@ -155,14 +185,14 @@ class FileGenerator:
                 try:
                     if contenido == None:
                         contenido = self.descargarContenido(minePackageLink['link'])
-                except Exception as e:
+                except:
                     pass
                 f = open(ruta+directorio+"/"+fileName, mode='w')
                 json.dump(contenido, f, indent=2)
                 f.close()
             except:
                 print "Excepcion escribir archivo --> " + link
-                pass;
+                pass
 
     def html(self,content):
         pass

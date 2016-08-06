@@ -128,7 +128,7 @@ class CrawlerController(Controller):
                         break
             if not self.progress.get_stop():
                 print "No se encuentran mas Enlaces"
-                self.progress.set_stop(True)
+                # self.progress.set_stop(True)
             else:
                 self.progress.set_crawlerState('Detenido')
 
