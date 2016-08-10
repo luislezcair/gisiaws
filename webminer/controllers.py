@@ -100,13 +100,15 @@ class CrawlerController(Controller):
                                         print "Explorando ..."
                                         crawler7.crawl(method=None)
                                         time+=1
+                                        a = 5
+                                        a = a + "asda"
                                         if time>cloudSize*10:
                                             break
                                     else:
                                         break
                         except Exception, e:
                             print "error"
-                            self.progress.exception = str(e)
+                            self.progress.exception = str(sys.exc_info()[0]) + " || " +  str(e)
                             self.progress.set_stop(True)
                             break
 
