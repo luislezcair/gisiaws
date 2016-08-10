@@ -104,8 +104,9 @@ class CrawlerController(Controller):
                                             break
                                     else:
                                         break
-                        except:
+                        except Exception, e:
                             print "error"
+                            self.progress.exception = str(e)
                             self.progress.set_stop(True)
                             break
 

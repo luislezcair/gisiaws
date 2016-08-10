@@ -20,6 +20,8 @@ class Process:
         self.IRProgress=0
         self.totalIR=0
 
+        self.exception= ""
+
         self.stop=False
 
         self.state=dict()
@@ -37,6 +39,7 @@ class Process:
 
         # para inicializar el estado en la bd
         self.get_progress()
+        self.actualizar_estado()
 
     #web crawling process, getters() and setters()
     def set_totalCrawling(self,quantity):
@@ -96,8 +99,9 @@ class Process:
         return self.IRState
 
     #stop process, getters() and setters()
-    def set_stop(self,stop):
+    def set_stop(self, stop):
         self.stop=stop
+        self.actualizar_estado()
         self.actualizarBdStop(self.stop)
     def get_stop(self):
         return self.stop
@@ -107,7 +111,7 @@ class Process:
         self.state['exploracion']=self.crawlerState+'||'+str(self.crawlerProgress)+'/'+str(self.totalCrawling)
         self.state['ranking']=self.IRState+'||'+str(self.IRProgress)+'/'+str(self.totalIR)
         self.state['extraccion']=self.scraperState+'||'+str(self.scraperProgress)+'/'+str(self.totalScraping)
-
+        self.state['exception'] = self.exception
         return self.state
 
     def comprobar_estado(self):
@@ -123,7 +127,6 @@ class Process:
 
     def actualizar_estado(self):
         progress = str(self.get_progress())
-
         for x in range(0, 20):
           try:
               self.cursor.execute("UPDATE wsrequest_state SET estado=%s where search_keys ="+self.id_request,(progress,))
