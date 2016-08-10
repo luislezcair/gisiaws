@@ -99,9 +99,7 @@ class CrawlerController(Controller):
                                     if not self.progress.get_stop():
                                         print "Explorando ..."
                                         crawler7.crawl(method=None)
-                                        time+=1
-                                        a = 5
-                                        a = a + "asda"
+                                        time+=1                                        
                                         if time>cloudSize*10:
                                             break
                                     else:
