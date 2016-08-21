@@ -22,7 +22,7 @@ class Structure:#es un clase auxiliar para encapsular una estructura.
 
 class WebMinerController(object):
 
-    def __init__(self,cloudSize = 100,searchKey = "" ,id_request = 0, urls = [] , directorio = ""):
+    def __init__(self,cloudSize = 20,searchKey = "" ,id_request = 0, urls = [] , directorio = ""):
         super(WebMinerController, self).__init__()
         self.progress=Process(id_request)
         self.minePackage=dict()
@@ -226,6 +226,8 @@ if __name__ == '__main__':
     request_id = options.request_id
 
     from models import entities
+
+
 
     with db_session:
         request = entities.get(r for r in entities.WSRequest if r.request_id == request_id)

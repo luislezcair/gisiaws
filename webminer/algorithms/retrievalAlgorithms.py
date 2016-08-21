@@ -68,7 +68,7 @@ class Algorithm(object):
                     progress.set_IRState('Detenido')
                     break
             if not progress.get_stop():
-                self.printRanking(weightedList,progress)
+                # self.printRanking(weightedList,progress)
                 progress.set_IRState('Finalizado')##Actualiza el estado del proceso
         else:
             progress.set_IRState('Detenido')

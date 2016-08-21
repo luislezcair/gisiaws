@@ -3,6 +3,7 @@ import copy
 import pickle
 import logging
 import time
+import datetime
 from progress import *
 from webCrawler.crawler_07 import *
 from webCrawler.crawler_08 import *
@@ -40,7 +41,7 @@ class EngineSearchController(Controller):
         for url in urls:
             badLink=Filter()
             if badLink.detect(url):
-                print url
+                # print url
                 urls.remove(url)
         return urls
 
@@ -82,6 +83,26 @@ class CrawlerController(Controller):
         cloudSize=minePackage['cloudSize']
         searchKey=minePackage['searchKey']
         step=0
+
+        import logging
+        LOG_FILENAME = '/var/www/html/gisiaws/logs/'+self.directorio+'.log'
+
+        LEVELS = {'debug': logging.DEBUG,
+          'info': logging.INFO,
+          'warning': logging.WARNING,
+          'error': logging.ERROR,
+          'critical': logging.CRITICAL}
+
+        if len(sys.argv) > 1:
+            level_name = sys.argv[1]
+            level = LEVELS.get(level_name, logging.NOTSET)
+            logging.basicConfig(filename=LOG_FILENAME,level=level)
+
+
+
+        logging.info('Inicio Webminer')
+        logging.info(str(searchKey))
+
         while not self.progress.get_stop():
             clouds=minePackage['clouds']
             for cloud in clouds:
@@ -97,17 +118,18 @@ class CrawlerController(Controller):
                             sizeNube = len(cloud.graph.nodes())
                             while len(crawler7.visited)<cloudSize:
                                     if not self.progress.get_stop():
-                                        print "Explorando ..."
+                                        # print "Explorando ..."
                                         crawler7.crawl(method=None)
-                                        time+=1                                        
+                                        time+=1
                                         if time>cloudSize*10:
                                             break
                                     else:
                                         break
                         except Exception, e:
                             print "error"
+                            logging.warning(str(sys.exc_info()[0]) + " || " +  str(e))
                             self.progress.exception = str(sys.exc_info()[0]) + " || " +  str(e)
-                            self.progress.set_stop(True)
+                            # self.progress.set_stop(True)
                             break
 
                         if sizeNube != len(cloud.graph.nodes()):
@@ -116,6 +138,8 @@ class CrawlerController(Controller):
 
                         if not self.progress.get_stop():
                                 step+=1
+                                tiempo = datetime.datetime.now()
+                                logging.info(str(tiempo) +' - Iteraccion numero: '+str(step) + ' - Cantidad Enlaces: ' + str(self.progress.totalIR))
                                 self.progress.set_crawlerProgress(step)
                         #except ValueError:
                             #logging.warning('%s','ValueError: Invalid IPv6 URL')

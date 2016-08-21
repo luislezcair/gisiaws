@@ -13,7 +13,7 @@ class QueryProcessor:
     def __init__(self):
         pass
     def processor(self,minePackage):
-        print '####SEARCH_KEY:',minePackage['searchKey']
+        # print '####SEARCH_KEY:',minePackage['searchKey']
         s = Sentence(parse(minePackage['searchKey']))
         minePackage['searchKey']=count(words(s), stemmer=PORTER)
         return minePackage['searchKey']
@@ -77,7 +77,7 @@ class Tokenizer:
         urlContent=UrlToPlainText()
         for cloud in clouds:
             for n in cloud.graph.nodes():#Itera una lista de enlaces de la nube
-                print cloud.graph.node[n]['link']
+                # print cloud.graph.node[n]['link']
                 pageContent=urlContent.plainTextConverter(cloud.graph.node[n]['link'])
                 cloud.graph.node[n]['methodData']=MethodData(count(words(Sentence(parse(pageContent))), stemmer=PORTER))
         #return minePackage

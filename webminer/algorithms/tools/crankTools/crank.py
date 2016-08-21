@@ -127,12 +127,12 @@ class CRanking:
                             score += doc.score_relevance
         return score
     def calcular_Crank(self,unaListaDocumentos):
-        print "SCORE RELEVANCE"
+        # print "SCORE RELEVANCE"
         for doc in unaListaDocumentos:
             analizados = []
             doc.score_contribution = self.calcular_score_contribution(doc,0,analizados)
             doc.score = 0.80 * doc.score_relevance + 0.20 * doc.score_contribution
-            print doc.score_relevance
+            # print doc.score_relevance
 ##end##
 
 class DocumentoCrank:

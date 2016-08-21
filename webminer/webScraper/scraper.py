@@ -79,22 +79,22 @@ class WebScraperClass:
     def rankear(self,scraperLinks,searchKey):
         if "tea" in searchKey:
             scraperLinks = sorted(scraperLinks, key=lambda k: k['weight_WA'], reverse=True)
-            print "WA"
+            # print "WA"
             for indice,link in enumerate(scraperLinks):
                 link['totalScore'] = indice
         scraperLinks = sorted(scraperLinks, key=lambda k: k['weight_CRANK'], reverse=True)
         print
-        print "weight_CRANK"
+        # print "weight_CRANK"
         for indice,link in enumerate(scraperLinks):
             link['totalScore'] += indice
         scraperLinks = sorted(scraperLinks, key=lambda k: k['weight_VSM'], reverse=True)
         print
-        print "weight_VSM"
+        # print "weight_VSM"
         for indice,link in enumerate(scraperLinks):
             link['totalScore'] += indice
         scraperLinks = sorted(scraperLinks, key=lambda k: k['weight_OKAPI'], reverse=True)
         print
-        print "weight_OKAPI"
+        # print "weight_OKAPI"
         for indice,link in enumerate(scraperLinks):
             link['totalScore'] += indice
 
@@ -108,7 +108,7 @@ class WebScraperClass:
             unaUrl = URL(unLink['link'])
             dominio = unaUrl.domain
             if dominio not in listaDominios:
-                print dominio
+                # print dominio
                 unLink['urlsDominio'] = []
                 listaDominios.append(dominio)
                 listaUrls.append(unLink)
@@ -160,7 +160,7 @@ class FileGenerator:
         os.chdir(ruta+directorio)
         for file in glob.glob(orden+"_*.json"):
             if(file != fileName):
-                print file
+                # print file
                 fEliminar = open(ruta+directorio+"/"+file,'r')
                 archivo = json.loads(fEliminar.read())
                 try:
