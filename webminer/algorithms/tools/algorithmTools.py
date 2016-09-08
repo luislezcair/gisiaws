@@ -179,26 +179,14 @@ class WeightingProccess:# Calculo de relevancia del metodo de enfoque ponderado
         for cloud in clouds:
             for n in cloud.graph.nodes():
                 methodData=cloud.graph.node[n]['methodData']
-                # document=methodData.getData()
-                # for t in document:
-                #     tf=document[t]
-                #     if t in query:
-                #         print "entroooooooooooooooooo"
-                #         ac+=tf
-                #     else:
-                #         if t in dictionary:#creo que me olvide de hacer stemming a las palabras del diccionario
-                #             ap+=tf
-                #         else:
-                #             an+=tf
                 content = Document(methodData.getContent(),stemmer = PORTER)
-                for doc in content.keywords(top=200,normalized=True):
-                    if doc[1] in query:
+                for doc in content.keywords(top=500,normalized=True):
+                    if doc[1] in query and doc[1] in dictionary.words:
                         ac += doc[0]
-                    else:
-                        if doc[1] in dictionary.words:
-                            ap += doc[0]
-                        else:
-                            an += doc[0]
+                    elif doc[1] in dictionary.words:
+                        ap += doc[0]
+                    elif doc[1] in query:
+                        an += doc[0]
                 if ac+ap+an > 0:
                     cloud.graph.node[n]['weight_WA']=((ac*alpha)+(ap*beta)+(an*gamma))/(ac+ap+an)
                 else:

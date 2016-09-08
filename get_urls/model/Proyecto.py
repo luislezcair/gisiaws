@@ -27,7 +27,7 @@ class Proyecto:
         self.claves.append(clave)
 
     def generarUrl(self, consulta):
-        try:
+        '''try:
             self.url_google.append(generar_consulta_google(consulta))
         except:
             print "Excepcion: google"
@@ -46,7 +46,8 @@ class Proyecto:
             self.url_intelligo.append(generar_consulta_intelligo(consulta))
         except:
             print "Excepcion: intelligo"
-            pass
+            pass'''
+        pass
         
     def crear_buscador_json(self, nombre_buscador, urls):
         buscador = {}

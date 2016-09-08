@@ -130,6 +130,7 @@ class WebScraperClass:
                 contador += 1
             contador+=1
         return contador
+
 class FileGenerator:
 
     def __init__(self):
@@ -147,9 +148,11 @@ class FileGenerator:
         contentList.append(webContent)
         document["document"]=contentList
 
-        self.write_file(minePackageLink,fileNameDocument,directorio,link)
-        self.write_json(fileNameJson,document,directorio)
-
+        try:
+            self.write_file(minePackageLink,fileNameDocument,directorio,link)
+            self.write_json(fileNameJson,document,directorio)
+        except:
+            pass
 
     def write_json(self,fileName, structure , directorio):
         ruta = REPOSITORY_PATH
@@ -212,6 +215,4 @@ class FileGenerator:
         htmlContent = URL(link).download()
         htmlContent = plaintext(htmlContent, keep={'title':[],'h1':[], 'h2':[], 'strong':[]})
         return htmlContent.replace("\n\n","<br>").replace("\n"," ")
-#obj=WebScraperClass()
-#obj.start(['http://www.clips.ua.ac.be/sites/default/files/ctrs-002_0.pdf'])
-#obj.start(['http://www.teaboard.gov.in/pdf/notice/Plant_Protection_Code_Ver_5_0_January_2016.pdf'])
+
