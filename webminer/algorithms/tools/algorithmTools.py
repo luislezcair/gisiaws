@@ -13,7 +13,7 @@ class QueryProcessor:
     def __init__(self):
         pass
     def processor(self,minePackage):
-        print '####SEARCH_KEY:',minePackage['searchKey']
+        # print '####SEARCH_KEY:',minePackage['searchKey']
         s = Sentence(parse(minePackage['searchKey']))
         minePackage['searchKey']=count(words(s), stemmer=PORTER)
         return minePackage['searchKey']
@@ -77,7 +77,7 @@ class Tokenizer:
         urlContent=UrlToPlainText()
         for cloud in clouds:
             for n in cloud.graph.nodes():#Itera una lista de enlaces de la nube
-                print cloud.graph.node[n]['link']
+                # print cloud.graph.node[n]['link']
                 pageContent=urlContent.plainTextConverter(cloud.graph.node[n]['link'])
                 cloud.graph.node[n]['methodData']=MethodData(count(words(Sentence(parse(pageContent))), stemmer=PORTER))
         #return minePackage
@@ -179,26 +179,14 @@ class WeightingProccess:# Calculo de relevancia del metodo de enfoque ponderado
         for cloud in clouds:
             for n in cloud.graph.nodes():
                 methodData=cloud.graph.node[n]['methodData']
-                # document=methodData.getData()
-                # for t in document:
-                #     tf=document[t]
-                #     if t in query:
-                #         print "entroooooooooooooooooo"
-                #         ac+=tf
-                #     else:
-                #         if t in dictionary:#creo que me olvide de hacer stemming a las palabras del diccionario
-                #             ap+=tf
-                #         else:
-                #             an+=tf
                 content = Document(methodData.getContent(),stemmer = PORTER)
-                for doc in content.keywords(top=200,normalized=True):
-                    if doc[1] in query:
+                for doc in content.keywords(top=500,normalized=True):
+                    if doc[1] in query and doc[1] in dictionary.words:
                         ac += doc[0]
-                    else:
-                        if doc[1] in dictionary.words:
-                            ap += doc[0]
-                        else:
-                            an += doc[0]
+                    elif doc[1] in dictionary.words:
+                        ap += doc[0]
+                    elif doc[1] in query:
+                        an += doc[0]
                 if ac+ap+an > 0:
                     cloud.graph.node[n]['weight_WA']=((ac*alpha)+(ap*beta)+(an*gamma))/(ac+ap+an)
                 else:

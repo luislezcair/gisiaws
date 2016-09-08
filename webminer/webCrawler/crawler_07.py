@@ -48,7 +48,7 @@ class SimpleCrawler1(Crawler):
         if linkUrl in self.structure.nodes():
             pass
         else:
-            print str(self.count)," VISITING:", linkUrl, " <----- FROM:", linkReferrer
+            # print str(self.count)," VISITING:", linkUrl, " <----- FROM:", linkReferrer
             self.structure.add_node(linkUrl,
                                     select=True,
                                     ID=0,
@@ -69,7 +69,7 @@ class SimpleCrawler1(Crawler):
         url=URL(link.url)
         pdf=url.mimetype in MIMETYPE_PDF
         if pdf:
-            print str(self.count)," VISITING:", link.url, " <----- FROM:", link.referrer
+            # print str(self.count)," VISITING:", link.url, " <----- FROM:", link.referrer
             self.structure.add_node(link.url,
                                     select=False,
                                     ID=0,
