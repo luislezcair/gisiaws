@@ -10,7 +10,7 @@ def generar_consulta_bing(q):
     reload(sys)
     sys.setdefaultencoding('utf8')
 
-    engine_bing = Bing(license=None, language="en")
+    engine_bing = Bing(license="TNMHm68dvf440pSPdnU+2LqxeQi7J2xszPZLBiPYsmI", language="en")
     bing = []
     for consulta in q:
         request = asynchronous(engine_bing.search, consulta, start=1, count=10, type=SEARCH, timeout=10)

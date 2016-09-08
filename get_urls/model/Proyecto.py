@@ -27,27 +27,31 @@ class Proyecto:
         self.claves.append(clave)
 
     def generarUrl(self, consulta):
-        '''try:
+        try:
             self.url_google.append(generar_consulta_google(consulta))
-        except:
+        except Exception as e:
             print "Excepcion: google"
+            print str(e)
             pass
         try:
             self.url_bing.append(generar_consulta_bing(consulta))
-        except:
+        except Exception as e:
             print "Excepcion: bing"
+            print str(e)
             pass
         try:
             self.url_excite.append(generar_consulta_excite(consulta))
-        except:
+        except Exception as e:
             print "Excepcion: excite"
+            print str(e)
             pass
         try:
             self.url_intelligo.append(generar_consulta_intelligo(consulta))
-        except:
+        except Exception as e:
             print "Excepcion: intelligo"
-            pass'''
-        pass
+            print str(e)
+            pass
+
         
     def crear_buscador_json(self, nombre_buscador, urls):
         buscador = {}
