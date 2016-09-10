@@ -83,4 +83,5 @@ webminer/webScraper/storage
 webminer/webScraper/settings_local.py
 dev
 logs/*
-.idea
+.idea/
+/webminer/models/config.py
