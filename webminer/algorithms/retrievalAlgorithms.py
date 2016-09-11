@@ -260,12 +260,12 @@ class CRank(Algorithm):
     def __init__(self,name):
         super(CRank,self).__init__(name)
     def run(self,minePackage,progress):
-        print 'AHORA SE HACE EL CRANK::'
+        #print 'AHORA SE HACE EL CRANK::'
         #self.tokenizer(minePackage) #Descarga contenido y lo tokeniza
         #processor=self.queryProcessor() #Se instancia un procesador de query
         #processor.processor(minePackage) #Se tokeniza la query
         rankingColaborativo=self.crank_Scoring()#se instancia el modelo de recuperacion CRANK
-        rankingColaborativo.run(minePackage) #se ejecuta el calculo de Okapi score(D,Q)
+        rankingColaborativo.run(minePackage)
         self.ranking(minePackage,progress) # se realiza el proceso de ranking
 
 '''#### Support Vector Machine ####################################################'''

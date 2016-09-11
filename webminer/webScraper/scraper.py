@@ -1,19 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import os
 import commands
 import json
 from pattern.web import URL, plaintext, MIMETYPE_PDF,extension
 import glob
 import itertools
+from webminer.controllers import *
+import os, sys
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from webminer.models.config import *
 
-try:
-    from settings_local import *
-except ImportError:
-    # Establece el directorio por defecto del repositorio si no encuentra el
-    # archivo de configuración.
-    # El archivo settings.py debe tener esta misma línea:
-    REPOSITORY_PATH = '/var/www/html/gisiaws/webminer/webScraper/storage/'
 
 
 class WebScraperClass:
@@ -22,6 +18,7 @@ class WebScraperClass:
 
     def __init__(self):
         self.fileGenerator=FileGenerator()
+
 
     def htmlToText(self,url):
         htmlContent = URL(url).download()
@@ -73,6 +70,23 @@ class WebScraperClass:
                 progress.set_scrapingState('Detenido')
                 print 'Detenido'
                 break
+
+        #limpieza json
+        try:
+            unConfig = config()
+            os.chdir(unConfig.repositoryPath+directorio)
+            for file in glob.glob("*.json"):
+                archivo = open(unConfig.repositoryPath+directorio+"/"+file, 'r')
+                if not archivo.read():
+                    os.remove(unConfig.repositoryPath+directorio+"/"+file)
+                    logController = LogsController(directorio)
+                    logController.Warning("Json Eliminado: " + str(file))
+        except Exception as e:
+            logController = LogsController(directorio)
+            logController.Error("L86 Scraper")
+            print str(e)
+            pass
+
         if not progress.get_stop():
             progress.set_scrapingState('Finalizado')
 
@@ -133,7 +147,11 @@ class WebScraperClass:
 
 class FileGenerator:
 
+    config = None
+    repositoryPath = ""
     def __init__(self):
+        self.config = config()
+        self.repositoryPath = self.config.repositoryPath
         pass
 
     def json(self,minePackageLink,fileNameJson,fileNameDocument,link,id_request,directorio):
@@ -151,15 +169,19 @@ class FileGenerator:
         try:
             self.write_file(minePackageLink,fileNameDocument,directorio,link)
             self.write_json(fileNameJson,document,directorio)
-        except:
+
+
+        except Exception as e:
+            print "EXCEPCIOOON:  " + webContent['url']
+            logController = LogsController(directorio)
+            logController.Error('L157 - Error Descarga: ' + webContent['url'] + ": " + str(e))
             pass
 
     def write_json(self,fileName, structure , directorio):
-        ruta = REPOSITORY_PATH
+        ruta = self.repositoryPath
         self.crearDirectorio(ruta,directorio)
         f = open(ruta+directorio+"/"+fileName, mode='w')
         orden = fileName[:2]
-
         os.chdir(ruta+directorio)
         for file in glob.glob(orden+"_*.json"):
             if(file != fileName):
@@ -168,13 +190,19 @@ class FileGenerator:
                 archivo = json.loads(fEliminar.read())
                 try:
                     os.remove(ruta+directorio+"/"+archivo['document'][0]['filename'])
-                except:
+                except Exception as e:
+                    print "Exception importante"
+                    logController = LogsController(directorio)
+                    logController.Error('L178 - Error Descarga: ' + fileName + ": " + str(e))
                     pass
                 os.remove(ruta+directorio+"/"+file)
+        if not structure:
+            logController = LogsController(directorio)
+            logController.Warning('L182 - Contenido Vacio')
         json.dump(structure, f, indent=2)
 
     def write_file(self,minePackageLink,fileName , directorio,link):
-        ruta = REPOSITORY_PATH
+        ruta = self.repositoryPath
         self.crearDirectorio(ruta,directorio)
 
         if ".pdf" in fileName:

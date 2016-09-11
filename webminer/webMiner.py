@@ -192,32 +192,6 @@ class WebMinerController(object):
         print "Visited links.....", visited
         print "Missing links.....", totalLinks-visited
 
-'''------------------------------------ADMIN------------------------------------------------------ '''
-#Inicializar:
-#wm=WebMinerController()
-
-#RUN SEARCH ENGINES:
-#wm.search()
-
-#CRAWLER AND SCRAPER:
-#minePackage=wm.crawler()
-#wm.MEGA_cloud(minePackage,0)
-#wm.scraper(minePackage)
-
-#INFORMATION RETRIEVAL ALGORITHMS:
-#wm.informationRetrieval(minePackage,wm.algorithm)
-
-#PRINT AND DRAW:
-#wm.printClouds(minePackage)
-#wm.drawClouds(minePackage)
-#wm.report(minePackage)
-
-#GUARDAR Y RECUPERAR CLOUDS:
-#wm.saveClouds(minePackage)
-#wm.retrieveClouds(searchKey)
-#wm.csv(minePackage)
-'''----------------------------------------------------------------------------------------------- '''
-
 if __name__ == '__main__':
     parser = OptionParser()
     parser.add_option("-r", "--request", dest="request_id")

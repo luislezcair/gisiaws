@@ -1,24 +1,10 @@
 ### Definir entidades y crear la base de datos en SQLite
 from pony.orm import *
-from db_local import *
+from config import *
 
 
-db = getDb()
-
-# crear archivo db_local con el siguiente codigo
-# -------Inicio---------
-# from pony.orm import *
-# import MySQLdb
-#
-# def getDb():
-#     db = Database('mysql', host='', user='', passwd='' , db="") -> para mysql
-#     db = Database("sqlite", "database.sqlite", create_db=True) -> para sqlite
-#     return db
-#
-# def getDbProgress():
-#     db = MySQLdb.connect(host="", user="", passwd="",db="")
-#     return db
-# -------Fin---------
+config = config()
+db = config.getDb()
 
 class Cloud(db.Entity):
     searchKey=PrimaryKey(str)

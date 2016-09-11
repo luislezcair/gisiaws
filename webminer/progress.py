@@ -1,6 +1,7 @@
 from models.entities import *
 from models import ORM_functions
 from models import entities
+from models.config import *
 
 
 
@@ -27,8 +28,8 @@ class Process:
         self.state=dict()
         self.id_request = id_request
 
-
-        self.db = getDbProgress()
+        self.config = config()
+        self.db = self.config.getDbProgress()
         self.cursor = self.db.cursor()
 
 
@@ -52,6 +53,7 @@ class Process:
         self.comprobar_estado()
         #print self.crawlerProgress
     def set_crawlerState(self,state):
+        # type: (object) -> object
         self.crawlerState=state
         #print self.crawlerState
     def get_crawlerProgress(self):

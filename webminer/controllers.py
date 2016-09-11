@@ -16,6 +16,7 @@ from models.ORM_functions import *
 from algorithms.retrievalAlgorithms import *
 from algorithms.tools.algorithmTools import MethodData
 
+
 class Controller(object):
     def __init__(self,progress):
         super(Controller,self).__init__()
@@ -85,9 +86,9 @@ class CrawlerController(Controller):
         searchKey=minePackage['searchKey']
         step=0
 
-        self.initLog()
-        logging.info('Inicio Webminer')
-        logging.info(str(searchKey))
+        logController = LogsController(self.directorio)
+        logController.Info('Inicio Webminer')
+        logController.Info(str(searchKey))
 
         while not self.progress.get_stop():
             clouds=minePackage['clouds']
@@ -113,7 +114,8 @@ class CrawlerController(Controller):
                                         break
                         except Exception, e:
                             print "error"
-                            logging.warning(str(sys.exc_info()[0]) + " || " +  str(e))
+                            print str(e)
+                            logController.Warning(str(sys.exc_info()[0]) + " || " +  str(e))
                             self.progress.exception = str(sys.exc_info()[0]) + " || " +  str(e)
                             # self.progress.set_stop(True)
                             break
@@ -125,7 +127,7 @@ class CrawlerController(Controller):
                         if not self.progress.get_stop():
                                 step+=1
                                 tiempo = datetime.datetime.now()
-                                logging.info(str(tiempo) +' - Iteraccion numero: '+str(step) + ' - Cantidad Enlaces: ' + str(self.progress.totalIR))
+                                logController.Info(str(tiempo) +' - Iteraccion numero: '+str(step) + ' - Cantidad Enlaces: ' + str(self.progress.totalIR))
                                 self.progress.set_crawlerProgress(step)
 
                     else:
@@ -138,27 +140,9 @@ class CrawlerController(Controller):
                 self.progress.set_crawlerState('Detenido')
 
         if not self.progress.get_stop():
-            self.progress.set_crawlerState('Finalizado')
+            self.progress.set_crawlerState("Finalizado")
 
-    def initLog(self):
-        import logging
-        LOG_DIRECTORY = '/var/www/html/gisiaws/logs/'
-        LOG_FILENAME = LOG_DIRECTORY + self.directorio + '.log'
 
-        carpeta = self.directorio.split("/")[0]
-        if not os.path.isdir(LOG_DIRECTORY+carpeta):
-            os.makedirs(LOG_DIRECTORY+carpeta)
-
-        LEVELS = {'debug': logging.DEBUG,
-                  'info': logging.INFO,
-                  'warning': logging.WARNING,
-                  'error': logging.ERROR,
-                  'critical': logging.CRITICAL}
-
-        if len(sys.argv) > 1:
-            level_name = sys.argv[1]
-            level = LEVELS.get(level_name, logging.NOTSET)
-            logging.basicConfig(filename=LOG_FILENAME, level=level)
 
 
 
@@ -271,4 +255,46 @@ class ScraperController(Controller):
             self.scraper.start(scraperLinks,self.progress,directorio,id_request,minePackage['searchKey'])
         else:
             self.progress.set_scrapingState('Detenido')
+
+class LogsController(object):
+
+    directorio = ""
+    def __init__(self,directorio):
+        super(LogsController,self).__init__()
+        self.directorio = directorio
+        import logging
+        from models.config import config
+
+        config = config()
+        LOG_FILENAME = config.pathLog + self.directorio + '.log'
+
+        carpeta = self.directorio.split("/")[0]
+        if not os.path.isdir(config.pathLog + carpeta):
+            os.makedirs(config.pathLog + carpeta)
+
+        LEVELS = {'debug': logging.DEBUG,
+                  'info': logging.INFO,
+                  'warning': logging.WARNING,
+                  'error': logging.ERROR,
+                  'critical': logging.CRITICAL}
+
+        if len(sys.argv) > 1:
+            level_name = sys.argv[1]
+            level = LEVELS.get(level_name, logging.NOTSET)
+            logging.basicConfig(filename=LOG_FILENAME, level=level)
+
+    def Debug(self,mensaje):
+        logging.debug(mensaje)
+
+    def Info(self,mensaje):
+        logging.info(mensaje)
+
+    def Warning(self,mensaje):
+        logging.warning(mensaje)
+
+    def Error(self,mensaje):
+        logging.error(mensaje)
+
+    def Critical(self,mensaje):
+        logging.critical(mensaje)
 ###END###
