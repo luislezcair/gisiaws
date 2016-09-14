@@ -72,10 +72,16 @@ class WebScraperClass:
                 break
 
         #limpieza json
+
+
+        if not progress.get_stop():
+            progress.set_scrapingState('Finalizado')
+
+        #Fix this
         try:
             unConfig = config()
-            os.chdir(unConfig.repositoryPath+directorio)
-            for file in glob.glob("*.json"):
+            os.chdir(unConfig.repositoryPath + directorio)
+            for file in glob.glob('*.json'):
                 archivo = open(unConfig.repositoryPath+directorio+"/"+file, 'r')
                 if not archivo.read():
                     os.remove(unConfig.repositoryPath+directorio+"/"+file)
@@ -88,8 +94,6 @@ class WebScraperClass:
             print str(e)
             pass
 
-        if not progress.get_stop():
-            progress.set_scrapingState('Finalizado')
 
     def eliminarArchivos(self,directorio,nombre):
         os.chdir(directorio)
@@ -182,6 +186,25 @@ class FileGenerator:
             logController.Error('L175 - Error Descarga: ' + webContent['url'] + ": " + str(e))
             pass
 
+        self.limpiarDirectorio(fileNameJson,directorio)
+
+    def limpiarDirectorio(self, nombreArchivo ="*.json", directorio=""):
+        try:
+            unConfig = config()
+            os.chdir(unConfig.repositoryPath + directorio)
+            for file in glob.glob(nombreArchivo):
+                archivo = open(unConfig.repositoryPath+directorio+"/"+file, 'r')
+                if not archivo.read():
+                    os.remove(unConfig.repositoryPath+directorio+"/"+file)
+                    self.eliminarArchivos(unConfig.repositoryPath+directorio,str(file).split('.json')[0])
+                    logController = LogsController(directorio)
+                    logController.Warning("Json Eliminado: " + str(file))
+        except Exception as e:
+            logController = LogsController(directorio)
+            logController.Error("L204 Scraper")
+            print str(e)
+            pass
+
     def write_json(self,fileName, structure , directorio):
         ruta = self.repositoryPath
         self.crearDirectorio(ruta,directorio)
@@ -199,6 +222,7 @@ class FileGenerator:
                     print "Exception importante"
                     logController = LogsController(directorio)
                     logController.Error('L178 - Error Descarga: ' + fileName + ": " + str(e))
+
                     pass
                 os.remove(ruta+directorio+"/"+file)
         if not structure:
