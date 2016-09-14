@@ -79,16 +79,22 @@ class WebScraperClass:
                 archivo = open(unConfig.repositoryPath+directorio+"/"+file, 'r')
                 if not archivo.read():
                     os.remove(unConfig.repositoryPath+directorio+"/"+file)
+                    self.eliminarArchivos(unConfig.repositoryPath+directorio,str(file).split('.json')[0])
                     logController = LogsController(directorio)
                     logController.Warning("Json Eliminado: " + str(file))
         except Exception as e:
             logController = LogsController(directorio)
-            logController.Error("L86 Scraper")
+            logController.Error("L87 Scraper")
             print str(e)
             pass
 
         if not progress.get_stop():
             progress.set_scrapingState('Finalizado')
+
+    def eliminarArchivos(self,directorio,nombre):
+        os.chdir(directorio)
+        for file in glob.glob(nombre+".*"):
+            os.remove(directorio+"/"+file)
 
     def rankear(self,scraperLinks,searchKey):
         if "tea" in searchKey:
@@ -101,6 +107,7 @@ class WebScraperClass:
         # print "weight_CRANK"
         for indice,link in enumerate(scraperLinks):
             link['totalScore'] += indice
+
         scraperLinks = sorted(scraperLinks, key=lambda k: k['weight_VSM'], reverse=True)
         print
         # print "weight_VSM"
@@ -169,12 +176,10 @@ class FileGenerator:
         try:
             self.write_file(minePackageLink,fileNameDocument,directorio,link)
             self.write_json(fileNameJson,document,directorio)
-
-
         except Exception as e:
             print "EXCEPCIOOON:  " + webContent['url']
             logController = LogsController(directorio)
-            logController.Error('L157 - Error Descarga: ' + webContent['url'] + ": " + str(e))
+            logController.Error('L175 - Error Descarga: ' + webContent['url'] + ": " + str(e))
             pass
 
     def write_json(self,fileName, structure , directorio):

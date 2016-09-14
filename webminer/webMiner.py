@@ -24,12 +24,13 @@ class WebMinerController(object):
 
     def __init__(self,cloudSize = 75,searchKey = "" ,id_request = 0, urls = [] , directorio = ""):
         super(WebMinerController, self).__init__()
-        self.progress=Process(id_request)
         self.minePackage=dict()
         self.searchKey=searchKey
         self.n=0
         self.directorio = directorio
         self.cloudSize=cloudSize
+        self.logController = LogsController(self.directorio)
+        self.progress=Process(id_request,self.logController)
         self.engineSearchController=EngineSearchController(self.progress)
         self.crawlerController=CrawlerController(self.progress,directorio,id_request)
         self.MEGA_CrawlerController=MEGA_CrawlerController(self.progress)

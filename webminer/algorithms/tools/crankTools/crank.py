@@ -1,4 +1,7 @@
+from __future__ import division
 from pattern.vector import *
+
+
 class CRanking:
 
     def __init__(self):
@@ -19,7 +22,6 @@ class CRanking:
                 unDocumento.url = cloud.graph.node[n]['link']
                 unDocumento.contenido = content
                 unDocumento.pattern = Document(content, stemmer = PORTER, name=unDocumento.url)
-                # unDocumento.score = self.calcular_score_relevance_crank(unDocumento,query)
                 unaListaDocumentos.append(unDocumento)
                 unaListaModel.append(unDocumento.pattern)
 
@@ -75,7 +77,7 @@ class CRanking:
         contador = 0
         for word in consulta:
             if word in documento.pattern.words:
-                contador +=1
+                contador =+1
         return (contador / len(consulta))
 
     def norm(self,documento, un_termino):

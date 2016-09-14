@@ -1,14 +1,15 @@
+import sys
 from models.entities import *
 from models import ORM_functions
-from models import entities
 from models.config import *
 
-
-
+from controllers import *
 # -*- coding: utf-8 -*-
 class Process:
 
-    def __init__(self,id_request):
+    def __init__(self,id_request,logController):
+
+        self.logController = logController
         self.crawlerState='Esperando'
         self.crawlerProgress=0
         self.totalCrawling=0
@@ -105,6 +106,8 @@ class Process:
         self.stop=stop
         self.actualizar_estado()
         self.actualizarBdStop(self.stop)
+        if stop:
+            self.logController.Info("Request Detenido")
     def get_stop(self):
         return self.stop
 
