@@ -29,14 +29,14 @@ class UrlToPlainText:
         txtContent =""
         try:
             if url.mimetype in MIMETYPE_PDF:
-                document = open ('temp.pdf','w')
+                document = open (os.path.dirname(os.path.abspath(__file__))+'/temp.pdf','w')
                 document.close()
                 download = url.download()
-                document = open('temp.pdf','a')
+                document = open(os.path.dirname(os.path.abspath(__file__))+'/temp.pdf','a')
                 document.write(download)
                 document.close()
-                #txtContent=os.system('pdf2txt.py temp.pdf')
-                txtContent=commands.getoutput('pdf2txt.py temp.pdf')
+                txtContent=commands.getoutput('pdf2txt.py '+os.path.dirname(os.path.abspath(__file__))+'/temp.pdf')
+                os.remove(os.path.dirname(os.path.abspath(__file__))+'/temp.pdf')
             else:
                 page = URL(url).download(user_agent='Mozilla/5')
                 if metodo == "mantenerEtiquetas":
