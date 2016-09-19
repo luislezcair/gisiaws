@@ -268,9 +268,10 @@ class LogsController(object):
         config = config()
         LOG_FILENAME = config.pathLog + self.directorio + '.log'
 
-        carpeta = self.directorio.split("/")[0]
-        if not os.path.isdir(config.pathLog + carpeta):
-            os.makedirs(config.pathLog + carpeta)
+        if "/" in directorio:
+            carpeta = self.directorio.split("/")[0]
+            if not os.path.isdir(config.pathLog + carpeta):
+                os.makedirs(config.pathLog + carpeta)
 
         LEVELS = {'debug': logging.DEBUG,
                   'info': logging.INFO,

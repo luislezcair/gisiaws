@@ -26,18 +26,6 @@ class WebScraperClass:
         txtContent = plaintext(htmlContent, keep={'a':['href']})
         return htmlContent
 
-    def pdfToText(self,link):
-        url = URL(link)
-        document = open ('temp.pdf','w')
-        document.close()
-        download = url.download()
-        document = open('temp.pdf','a')
-        document.write(download)
-        document.close()
-        #content=os.system('pdf2txt.py temp.pdf')
-        txtContent=commands.getoutput('pdf2txt.py temp.pdf')
-        return txtContent
-
     def start(self,scraperLinks,progress,directorio,id_request,searchKey):
         step=0
         progress.set_totalScraping(len(scraperLinks))
@@ -158,6 +146,7 @@ class WebScraperClass:
 
 class FileGenerator:
 
+
     config = None
     repositoryPath = ""
     def __init__(self):
@@ -177,16 +166,20 @@ class FileGenerator:
         contentList.append(webContent)
         document["document"]=contentList
 
-        try:
-            self.write_file(minePackageLink,fileNameDocument,directorio,link)
-            self.write_json(fileNameJson,document,directorio)
-        except Exception as e:
-            print "EXCEPCIOOON:  " + webContent['url']
-            logController = LogsController(directorio)
-            logController.Error('L175 - Error Descarga: ' + webContent['url'] + ": " + str(e))
-            pass
 
-        self.limpiarDirectorio(fileNameJson,directorio)
+        self.write_file(minePackageLink,fileNameDocument,directorio)
+        ruta = self.repositoryPath
+        if not open(ruta + directorio + "/" + fileNameDocument,'r'):
+            logController = LogsController(directorio)
+            logController.Warning("No existe html: " + str(fileNameDocument))
+        else:
+            self.write_json(fileNameJson,document,directorio)
+            if not open(ruta + directorio + "/" + fileNameJson, 'r').read():
+                logController = LogsController(directorio)
+                logController.Warning("Json Vacio: " + str(fileNameJson))
+
+
+
 
     def limpiarDirectorio(self, nombreArchivo ="*.json", directorio=""):
         try:
@@ -222,7 +215,6 @@ class FileGenerator:
                     print "Exception importante"
                     logController = LogsController(directorio)
                     logController.Error('L178 - Error Descarga: ' + fileName + ": " + str(e))
-
                     pass
                 os.remove(ruta+directorio+"/"+file)
         if not structure:
@@ -230,29 +222,43 @@ class FileGenerator:
             logController.Warning('L182 - Contenido Vacio')
         json.dump(structure, f, indent=2)
 
-    def write_file(self,minePackageLink,fileName , directorio,link):
+    def write_file(self,minePackageLink,fileName , directorio):
         ruta = self.repositoryPath
         self.crearDirectorio(ruta,directorio)
+
+        nombreFile,extensionFile = os.path.splitext(fileName)
+        self.comprobarArchivosExtras(directorio,nombreFile,extensionFile,ruta)
 
         if ".pdf" in fileName:
             url = URL(minePackageLink['link']).download(user_agent='Mozilla/5.0')
             document = open(ruta+directorio+"/"+fileName,'w')
             document.write(url)
             document.close()
+            return True
         else:
             try:
                 contenido =  minePackageLink['methodData'].contenidoConEtiquetas
-                try:
-                    if contenido == None:
-                        contenido = self.descargarContenido(minePackageLink['link'])
-                except:
-                    pass
+                if contenido == None:
+                    contenido = self.descargarContenido(minePackageLink['link'])
                 f = open(ruta+directorio+"/"+fileName, mode='w')
                 json.dump(contenido, f, indent=2)
                 f.close()
+                return True
             except:
-                print "Excepcion escribir archivo --> " + link
+                print "Excepcion escribir archivo --> " + fileName
                 pass
+                return False
+
+    def comprobarArchivosExtras(self,directorio,nombreFile,extensionFile,ruta):
+        numeroFila = nombreFile[:2]
+        if len(glob.glob(numeroFila + "*")) > 2:
+            for unArchivo in glob.glob(numeroFila+"*"):
+                unArchivoName,unArchivoExtension = os.path.splitext(unArchivo)
+                if (unArchivoExtension != extensionFile or unArchivoName != nombreFile) and unArchivoExtension != ".json" :
+                    os.remove(ruta + directorio + "/" + unArchivo)
+                    logController = LogsController(directorio)
+                    logController.Warning('Mas de 3 archivos: ' + numeroFila)
+                    logController.Info("Archivo Eliminado " + unArchivo)
 
     def html(self,content):
         pass
