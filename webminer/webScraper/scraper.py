@@ -240,12 +240,12 @@ class FileGenerator:
                 contenido =  minePackageLink['methodData'].contenidoConEtiquetas
                 if contenido == None:
                     contenido = self.descargarContenido(minePackageLink['link'])
-                f = open(ruta+directorio+"/"+fileName, mode='w')
-                json.dump(contenido, f, indent=2)
+                f = open(ruta+directorio+"/"+fileName, mode='wb')
+                f.write(contenido)
                 f.close()
                 return True
-            except:
-                print "Excepcion escribir archivo --> " + fileName
+            except Exception as e:
+                print "Excepcion escribir archivo --> " + fileName + " - " + str(e)
                 pass
                 return False
 
@@ -276,6 +276,7 @@ class FileGenerator:
 
     def descargarContenido(self,link):
         htmlContent = URL(link).download()
-        htmlContent = plaintext(htmlContent, keep={'title':[],'h1':[], 'h2':[], 'strong':[]})
-        return htmlContent.replace("\n\n","<br>").replace("\n"," ")
+        return htmlContent
+        '''htmlContent = plaintext(htmlContent, keep={'title':[],'h1':[], 'h2':[], 'strong':[]})
+        return htmlContent.replace("\n\n","<br>").replace("\n"," ")'''
 

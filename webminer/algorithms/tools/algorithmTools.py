@@ -40,9 +40,9 @@ class UrlToPlainText:
             else:
                 page = URL(url).download(user_agent='Mozilla/5')
                 if metodo == "mantenerEtiquetas":
-                    txtContent=plaintext(page, keep={'title':[],'h1':[], 'h2':[], 'strong':[]})
+                    txtContent = page
                 else:
-                    txtContent=plaintext(page, keep={})
+                    txtContent= plaintext(page, keep={})
         except:
             pass
         return txtContent
