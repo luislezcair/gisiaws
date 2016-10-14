@@ -78,7 +78,7 @@ class WSRequestStateViewSet(viewsets.ModelViewSet):
 
     @list_route(methods=['post'])
     def project_stop(self, request, pk=None):
-        project_id = request.data['id']
+        project_id = request.query_params['id']
         project_requests = WSRequest.objects.filter(id_proyecto=project_id)
 
         for pr in project_requests:

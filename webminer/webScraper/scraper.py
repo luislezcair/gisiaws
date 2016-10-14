@@ -35,17 +35,8 @@ class WebScraperClass:
         # ordenar por el peso de los documentos
         self.rankear(scraperLinks,searchKey)
 
-        for enlace in scraperLinks:
-            print enlace['link'] + " - " + str(enlace['totalScore'])
-
         scraperLinks = sorted(scraperLinks, key=lambda k: k['totalScore'])
-
-        print
-        for enlace in scraperLinks:
-            print enlace['link'] + " - " + str(enlace['totalScore'])
-
         scraperLinks = self.unificarLista(scraperLinks)
-
 
         progress.totalNodes = len(scraperLinks)
         for link in scraperLinks:
