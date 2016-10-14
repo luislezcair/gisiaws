@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from __future__ import division
 import commands
 import json
 from pattern.web import URL, plaintext, MIMETYPE_PDF,extension
@@ -33,7 +34,16 @@ class WebScraperClass:
 
         # ordenar por el peso de los documentos
         self.rankear(scraperLinks,searchKey)
+
+        for enlace in scraperLinks:
+            print enlace['link'] + " - " + str(enlace['totalScore'])
+
         scraperLinks = sorted(scraperLinks, key=lambda k: k['totalScore'])
+
+        print
+        for enlace in scraperLinks:
+            print enlace['link'] + " - " + str(enlace['totalScore'])
+
         scraperLinks = self.unificarLista(scraperLinks)
 
 
@@ -89,27 +99,30 @@ class WebScraperClass:
             os.remove(directorio+"/"+file)
 
     def rankear(self,scraperLinks,searchKey):
+
         if "tea" in searchKey:
             scraperLinks = sorted(scraperLinks, key=lambda k: k['weight_WA'], reverse=True)
-            # print "WA"
+            #print "WA"
             for indice,link in enumerate(scraperLinks):
-                link['totalScore'] = indice
+                link['totalScore'] = 1/(indice+1)
         scraperLinks = sorted(scraperLinks, key=lambda k: k['weight_CRANK'], reverse=True)
-        print
-        # print "weight_CRANK"
-        for indice,link in enumerate(scraperLinks):
-            link['totalScore'] += indice
 
+        #print "weight_CRANK"
+        for indice,link in enumerate(scraperLinks):
+            link['totalScore'] += 1/(indice+1)
         scraperLinks = sorted(scraperLinks, key=lambda k: k['weight_VSM'], reverse=True)
-        print
-        # print "weight_VSM"
+
+        #print "weight_VSM"
         for indice,link in enumerate(scraperLinks):
-            link['totalScore'] += indice
+            link['totalScore'] += 1/(indice+1)
         scraperLinks = sorted(scraperLinks, key=lambda k: k['weight_OKAPI'], reverse=True)
-        print
-        # print "weight_OKAPI"
+
+        #print "weight_OKAPI"
         for indice,link in enumerate(scraperLinks):
-            link['totalScore'] += indice
+            link['totalScore'] += 1/(indice+1)
+
+        for link in scraperLinks:
+            link['totalScore'] = 1 / float(link['totalScore'])
 
     def unificarLista(self,scraperLinks):
         listaDominios = []
