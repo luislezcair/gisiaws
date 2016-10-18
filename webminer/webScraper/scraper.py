@@ -28,6 +28,7 @@ class WebScraperClass:
         return htmlContent
 
     def start(self,scraperLinks,progress,directorio,id_request,searchKey):
+        unConfig = config()
         step=0
         progress.set_totalScraping(len(scraperLinks))
         progress.set_scrapingState('Ejecutando')
@@ -36,6 +37,7 @@ class WebScraperClass:
         self.rankear(scraperLinks,searchKey)
 
         scraperLinks = sorted(scraperLinks, key=lambda k: k['totalScore'])
+        self.crearTop50(scraperLinks,directorio,unConfig)
         scraperLinks = self.unificarLista(scraperLinks)
 
         progress.totalNodes = len(scraperLinks)
@@ -68,7 +70,6 @@ class WebScraperClass:
 
         #Fix this
         try:
-            unConfig = config()
             os.chdir(unConfig.repositoryPath + directorio)
             for file in glob.glob('*.json'):
                 archivo = open(unConfig.repositoryPath+directorio+"/"+file, 'r')
@@ -82,6 +83,17 @@ class WebScraperClass:
             logController.Error("L87 Scraper")
             print str(e)
             pass
+
+    def crearTop50(self,scraperLinks,directorio,unConfig):
+        filename = unConfig.pathLog+directorio+"top50.txt"
+        if not os.path.isfile(filename):
+            archivo = open(filename,'wb')
+        else:
+            archivo = open(filename,'a')
+        for doc in scraperLinks[:50]:
+            archivo.write(doc['link']+"\n")
+        archivo.write("\n")
+        archivo.close()
 
 
     def eliminarArchivos(self,directorio,nombre):
