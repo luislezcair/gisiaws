@@ -4,7 +4,8 @@
 import os
 import sys; sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", ".."))
 from pattern.web import Bing, asynchronous, plaintext, URL  , SEARCH , time
-
+import bs4 as bs
+import urllib2
 
 def generar_consulta_bing(q):    
     reload(sys)
@@ -26,4 +27,18 @@ def generar_consulta_bing(q):
         for result in request.value:
             bing.append(result.url)
 
+    return bing
+
+def recuperar_urls_beautifulsoup(q):
+    bing = []
+    for consulta in q:
+        consulta = consulta.replace(" ", "+")
+
+
+        sauce = urllib2.urlopen("https://www.bing.com/search?q=" + consulta + "&qs=n&form=QBLH&pq=tea+min&sc=8-7&sp=-1&sk=&cvid=A8821870F285403DAC8D935AD548A053").read()
+        soup = bs.BeautifulSoup(sauce, 'lxml')
+
+        divs = soup.findAll("li", {"class": "b_algo"})
+        for unDivs in divs:
+            bing.append(unDivs.find('a').get('href'))
     return bing

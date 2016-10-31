@@ -23,7 +23,7 @@ def generar_consulta_intelligo(consultas):
     dcap["phantomjs.page.settings.userAgent"] = user_agent
 
     driver = webdriver.PhantomJS(desired_capabilities=dcap)
-    driver.set_script_timeout(15)
+    driver.set_script_timeout(50)
     driver.set_window_size(1280, 1024)
     # driver.maximize_window()
     for consulta in consultas:

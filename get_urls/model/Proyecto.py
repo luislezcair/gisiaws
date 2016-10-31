@@ -36,8 +36,13 @@ class Proyecto:
         try:
             self.url_bing.append(generar_consulta_bing(consulta))
         except Exception as e:
-            print "Excepcion: bing"
+            print "Excepcion: bing. Init metodo 2"
             print str(e)
+            try:
+                self.url_bing.append(recuperar_urls_beautifulsoup(consulta))
+            except Exception as e:
+                print "Excepcion: bing metodo 2."
+                print str(e)
             pass
         try:
             self.url_excite.append(generar_consulta_excite(consulta))
@@ -51,6 +56,7 @@ class Proyecto:
             print "Excepcion: intelligo"
             print str(e)
             pass
+
 
         
     def crear_buscador_json(self, nombre_buscador, urls):
