@@ -37,8 +37,8 @@ class WebScraperClass:
         self.rankear(scraperLinks,searchKey)
 
         scraperLinks = sorted(scraperLinks, key=lambda k: k['totalScore'])
-        self.crearTop50(scraperLinks,directorio,unConfig)
         scraperLinks = self.unificarLista(scraperLinks)
+        self.crearTop50(scraperLinks,directorio,unConfig)
 
         progress.totalNodes = len(scraperLinks)
         for link in scraperLinks:
