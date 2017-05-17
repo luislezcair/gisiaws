@@ -22,6 +22,11 @@ class Structure:#es un clase auxiliar para encapsular una estructura.
 
 class WebMinerController(object):
 
+    # cloudSize = Parametro que define cuantas urls buscar por cada nodo a analizar 
+    # searchKey = Clave de busqueda generada en el mail.
+    # id_request = id obtenido mediante el parametro.
+    # urls obtenidos de los buscadores
+    # Nombre del directorio donde se almacenan los mejores 50 documentos. Generado por el nombre del proyecto creado en la interfaz.
     def __init__(self,cloudSize = 75,searchKey = "" ,id_request = 0, urls = [] , directorio = ""):
         super(WebMinerController, self).__init__()
         self.minePackage=dict()
@@ -40,20 +45,16 @@ class WebMinerController(object):
         self.urls = urls
         self.id_request = id_request
 
-
+    
+    # inicio del webminer.
+    # Minepackage es un array que contiene todos los datos necesarios para el proceso del webminer.
     def run(self):
         self.minePackage['searchKey']=self.searchKey
         unProcessor = QueryProcessor()
         self.minePackage['searchKeyStemmer'] = unProcessor.processor(self.minePackage)#Se tokeniza la query
 
         self.minePackage['cloudSize']=self.cloudSize
-        self.minePackage['clouds']=self.startClouds(self.urls)
-
-        # clouds = self.minePackage['clouds']
-        # for cloud in clouds:
-        #     print cloud.graph.nodes()
-        #     for n in cloud.graph.nodes():
-        #         print n
+        self.minePackage['clouds']=self.startClouds(self.urls)        
 
         self.crawler()
 
@@ -83,18 +84,6 @@ class WebMinerController(object):
             clouds.append(Structure(graph,url.domain))
         return clouds
 
-
-    def stopWebMiner(self):
-        #self.progress.set_running(False)
-        self.progress.set_stop(True)
-        self.progress.set_crawlerState('Detenido')
-        self.progress.set_IRState('Detenido')
-        self.progress.set_scrapingState('Detenido')
-
-    #def setStop(self):
-    #    self.progress.set_stop(False)
-    #    #self.progress.set_running(True)
-
     def search(self):
         if self.test:
             urls=TestLinksClass()
@@ -103,10 +92,6 @@ class WebMinerController(object):
         else:
             print "##### ",self.searchKey
             urls=self.engineSearchController.start(self.searchKey)
-            #j=0
-            #for l in urls:
-            #    j+=1
-            #    print j,'-',l
             return urls
 
     def crawler(self):
@@ -193,41 +178,48 @@ class WebMinerController(object):
         print "Visited links.....", visited
         print "Missing links.....", totalLinks-visited
 
+# Inicio del proceso de Webminer #
+# Parametro: request_id del proceso iniciado #
 if __name__ == '__main__':
+    
+    # parser de las opciones ingresadas en el comando#
     parser = OptionParser()
     parser.add_option("-r", "--request", dest="request_id")
 
     (options, args) = parser.parse_args()
     request_id = options.request_id
 
+    # import entities. Clase que mapeo en objetos los datos de la db.
     from models import entities
 
-
-
     with db_session:
+        # get entities que coincidan con el --request del parametro.
         request = entities.get(r for r in entities.WSRequest if r.request_id == request_id)
 
         print "id_proyecto:", request.id_proyecto
         print "nombre_directorio:", request.nombre_directorio
 
-        # claves = entities.get(a for a in entities.Searchkeys_searchkey if a.request_id == request_id)
+        # Se obtienen las claves generados.
         searchkeys = Searchkeys_searchkey.select(lambda p: p.request_id == request_id)
         consulta = ""
         for searchKey in searchkeys:
             consulta = consulta + str(searchKey.clave) + " "
-
+        
+        # las consultas de busquedas se concatenan en un string.
         consulta =  " ".join(filter(lambda x:x[0]!='-', consulta.split()))
         nombre_directorio = request.nombre_directorio
+        
         # url_list tiene una lista de (orden, URL)
         url_list = request.urls.order_by(Url.orden)
 
-    # urls contiene la lista de urls con el formato valido del crawler
+        # urls contiene la lista de urls con el formato valido del crawler
         urls = []
         for url in url_list:
             urlAux = []
             urlAux.append(url.url)
             urls.append(urlAux)
         flush()
-
+    
+    # Inicio del proceso del webminer.
     wm = WebMinerController(id_request = request_id , searchKey = consulta,  urls = urls , directorio = nombre_directorio)
     wm.run()
