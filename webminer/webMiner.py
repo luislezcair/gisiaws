@@ -63,6 +63,7 @@ class WebMinerController(object):
         self.progress.set_IRState('Detenido')
         self.progress.set_scrapingState('Detenido')
 
+    ''' Funcion para crear la nube dada la lista de urls inicial '''
     def startClouds(self,urls):
         clouds=list()
         for n in urls:
@@ -95,9 +96,6 @@ class WebMinerController(object):
 
     def crawler(self):
         self.crawlerController.start(self.minePackage)
-
-    def MEGA_cloud(self,minePackage,enlaces):# enlaces: es la cantidad de enlaces aleatorios que se crearan
-        self.MEGA_CrawlerController.start(minePackage,enlaces)
 
     def informationRetrieval(self):
         self.IRController.start(self.minePackage)

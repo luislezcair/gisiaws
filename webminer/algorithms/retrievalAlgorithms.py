@@ -268,14 +268,14 @@ class CRank(Algorithm):
         rankingColaborativo.run(minePackage)
         self.ranking(minePackage,progress) # se realiza el proceso de ranking
 
-'''#### Support Vector Machine ####################################################'''
+'''#### Support Vector Machine - Not implemented ####################################################'''
 class SupportVectorMachine(Algorithm):
     def __init__(self,name):
         super(SupportVectorMachine,self).__init__(name)
     def run(self,minePackage):
         pass
 
-'''#### Latent Semantic Analysis ##################################################'''
+'''#### Latent Semantic Analysis  Not implemented ##################################################'''
 class LatentSemanticAnalysis(Algorithm):
     def __init__(self,name):
         super(LatentSemanticAnalysis,self).__init__(name)

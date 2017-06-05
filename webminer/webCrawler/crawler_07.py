@@ -36,6 +36,7 @@ class SimpleCrawler1(Crawler):
     structure=nx.DiGraph()
     badLink=Filter()
 
+    ''' Funcion que se ejecuta cuando el crawler visita una paginas'''
     def visit(self, link, source=None):
         linkReferrer=link.referrer
         linkUrl=link.url
@@ -65,9 +66,11 @@ class SimpleCrawler1(Crawler):
                 self.structure.node[linkReferrer]['select']=False
                 self.structure.add_edge(linkReferrer,linkUrl)
 
+    ''' Funcion que se ejecuta cuando el crawler falla en la exploracion de una url '''
     def fail(self, link):
         url=URL(link.url)
         pdf=url.mimetype in MIMETYPE_PDF
+        ''' Si es un archivo pdf, se agrega en la lista de nodos'''
         if pdf:
             # print str(self.count)," VISITING:", link.url, " <----- FROM:", link.referrer
             self.structure.add_node(link.url,
@@ -95,6 +98,7 @@ class SimpleCrawler1(Crawler):
             if link.url in self.structure.nodes():
                 self.structure.remove_node(link.url)
 
+    ''' funcion para preveir que el crawler guie su exploracion a paginas como facebook o twitter.'''
     def priority(self, link, method=None):
        #if "linkedin" in link.url or "twitter" in link.url or "facebook" in link.url or "google" in link.url:
        if self.badLink.detect(link.url):

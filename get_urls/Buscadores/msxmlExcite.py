@@ -16,9 +16,10 @@ def generar_consulta_excite(consultas):
             driver.set_script_timeout(30)
             driver.maximize_window()
             consulta = consulta.replace(" ","+")
+
             driver.get("http://msxml.excite.com/info.xcite/search/web?fcoid=417&fcop=topnav&fpid=27&q="+str(consulta))
             try:
-                    element = WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.CSS_SELECTOR, "div.searchResult")))
+                    element = WebDriverWait(driver, 80).until(EC.presence_of_element_located((By.CSS_SELECTOR, "div.searchResult")))
             finally:
                 ids = driver.find_element_by_id('resultsMain')
                 soup = BeautifulSoup(ids.get_attribute('innerHTML'))
@@ -40,7 +41,6 @@ def generar_consulta_excite(consultas):
 
                 driver.quit()
         except Exception as e:
-            print str(e)
-            print "Error consulta " + consulta
+            print "Error MsmlxExcite: ",consulta,": ",str(e)
             pass
     return urls
