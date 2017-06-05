@@ -38,9 +38,7 @@ class WebMinerController(object):
         self.progress=Process(id_request,self.logController)
         self.engineSearchController=EngineSearchController(self.progress)
         self.crawlerController=CrawlerController(self.progress,directorio,id_request)
-        self.MEGA_CrawlerController=MEGA_CrawlerController(self.progress)
         self.IRController=InformationRetrievalController(self.progress)
-        self.storageController=StorageController(self.progress)
         self.scraperController=ScraperController(self.progress)
         self.urls = urls
         self.id_request = id_request
@@ -128,18 +126,8 @@ class WebMinerController(object):
         #for cloud in clouds:
             #nx.draw(cloud.structure,node_size=300,alpha=0.8,node_color="cyan")
 
-    def saveClouds(self,minePackage):#Guarda en disco local las nubes contenidas en minaPackage despues del crawler
-        self.storageController.save(minePackage)
-
-    def retrieveClouds(self,searchKey):#Recupera una nube de la base de datos directamente relacionada con una clave de busqueda
-        return self.storageController.get(searchKey)
-        #self.minePackage=self.storageController.get(searchKey)
-
     def deleteSearch(self,searchKey):#Elimina una nube relacionada a una query de la base de datos
         pass
-
-    def removeAllSearches(self):
-        self.storageController.removeAll()
 
     def csv(self,minePackage):#convierte una nube de enlaces a formato csv para poder visualizarla con el programa Gephi
         clouds=minePackage['clouds']
