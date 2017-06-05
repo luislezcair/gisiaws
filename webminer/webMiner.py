@@ -27,7 +27,7 @@ class WebMinerController(object):
     # id_request = id obtenido mediante el parametro.
     # urls obtenidos de los buscadores
     # Nombre del directorio donde se almacenan los mejores 50 documentos. Generado por el nombre del proyecto creado en la interfaz.
-    def __init__(self,cloudSize = 75,searchKey = "" ,id_request = 0, urls = [] , directorio = ""):
+    def __init__(self,cloudSize = 10,searchKey = "" ,id_request = 0, urls = [] , directorio = ""):
         super(WebMinerController, self).__init__()
         self.minePackage=dict()
         self.searchKey=searchKey
@@ -44,7 +44,6 @@ class WebMinerController(object):
         self.scraperController=ScraperController(self.progress)
         self.urls = urls
         self.id_request = id_request
-
     
     # inicio del webminer.
     # Minepackage es un array que contiene todos los datos necesarios para el proceso del webminer.
@@ -221,5 +220,6 @@ if __name__ == '__main__':
         flush()
     
     # Inicio del proceso del webminer.
+    print "Inicio del proceso de webminer"
     wm = WebMinerController(id_request = request_id , searchKey = consulta,  urls = urls , directorio = nombre_directorio)
     wm.run()

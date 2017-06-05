@@ -85,3 +85,9 @@ dev
 logs/*
 .idea/
 /webminer/models/config.py
+
+*.txt
+
+*.html
+
+*.json

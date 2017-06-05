@@ -91,7 +91,7 @@ class SimpleCrawler1(Crawler):
                 self.structure.add_edge(link.referrer,link.url)
             self.count+=1
         else:
-            print "failed: ", link.url
+            print "failed crawler: ", link.url
             if link.url in self.structure.nodes():
                 self.structure.remove_node(link.url)
 
