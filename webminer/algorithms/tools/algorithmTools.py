@@ -22,6 +22,11 @@ class QueryProcessor:
 class UrlToPlainText:
     def __init__(self):
         pass
+
+    ''' funcion que dado un link, descarga el contenido y lo transforma en texto plano
+        En el caso de que sea un archivo pdf, lo descarga y luego utiliza la libreria pdf2txt para transformar
+        un pdf a texto. Luego que obtiene el texto, elimina el pdf.
+    '''
     def plainTextConverter(self,link,metodo = "SinEtiquetas"):
         reload(sys)
         sys.setdefaultencoding('utf-8')
@@ -159,7 +164,7 @@ class DomainDictionary:
 #obj=DomainDictionary()
 #print obj.validate('tea')
 
-
+''' Calculo del enfoque ponderado utilizando el minePackage y el diccionario de datos'''
 class WeightingProccess:# Calculo de relevancia del metodo de enfoque ponderado
 
     def __init__(self):

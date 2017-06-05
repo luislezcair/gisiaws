@@ -90,7 +90,7 @@ class WebScraperClass:
                     logController.Warning("Json Eliminado: " + str(file))
         except Exception as e:
             logController = LogsController(directorio)
-            logController.Error("L87 Scraper")
+            logController.Error("Scraper Error: " + str(e))
             print str(e)
             pass
 

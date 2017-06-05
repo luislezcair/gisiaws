@@ -27,7 +27,7 @@ class WebMinerController(object):
     # id_request = id obtenido mediante el parametro.
     # urls obtenidos de los buscadores
     # Nombre del directorio donde se almacenan los mejores 50 documentos. Generado por el nombre del proyecto creado en la interfaz.
-    def __init__(self,cloudSize = 75,searchKey = "" ,id_request = 0, urls = [] , directorio = ""):
+    def __init__(self,cloudSize = 10,searchKey = "" ,id_request = 0, urls = [] , directorio = ""):
         super(WebMinerController, self).__init__()
         self.minePackage=dict()
         self.searchKey=searchKey
@@ -38,13 +38,10 @@ class WebMinerController(object):
         self.progress=Process(id_request,self.logController)
         self.engineSearchController=EngineSearchController(self.progress)
         self.crawlerController=CrawlerController(self.progress,directorio,id_request)
-        self.MEGA_CrawlerController=MEGA_CrawlerController(self.progress)
         self.IRController=InformationRetrievalController(self.progress)
-        self.storageController=StorageController(self.progress)
         self.scraperController=ScraperController(self.progress)
         self.urls = urls
         self.id_request = id_request
-
     
     # inicio del webminer.
     # Minepackage es un array que contiene todos los datos necesarios para el proceso del webminer.
@@ -64,6 +61,7 @@ class WebMinerController(object):
         self.progress.set_IRState('Detenido')
         self.progress.set_scrapingState('Detenido')
 
+    ''' Funcion para crear la nube dada la lista de urls inicial '''
     def startClouds(self,urls):
         clouds=list()
         for n in urls:
@@ -97,9 +95,6 @@ class WebMinerController(object):
     def crawler(self):
         self.crawlerController.start(self.minePackage)
 
-    def MEGA_cloud(self,minePackage,enlaces):# enlaces: es la cantidad de enlaces aleatorios que se crearan
-        self.MEGA_CrawlerController.start(minePackage,enlaces)
-
     def informationRetrieval(self):
         self.IRController.start(self.minePackage)
 
@@ -131,18 +126,8 @@ class WebMinerController(object):
         #for cloud in clouds:
             #nx.draw(cloud.structure,node_size=300,alpha=0.8,node_color="cyan")
 
-    def saveClouds(self,minePackage):#Guarda en disco local las nubes contenidas en minaPackage despues del crawler
-        self.storageController.save(minePackage)
-
-    def retrieveClouds(self,searchKey):#Recupera una nube de la base de datos directamente relacionada con una clave de busqueda
-        return self.storageController.get(searchKey)
-        #self.minePackage=self.storageController.get(searchKey)
-
     def deleteSearch(self,searchKey):#Elimina una nube relacionada a una query de la base de datos
         pass
-
-    def removeAllSearches(self):
-        self.storageController.removeAll()
 
     def csv(self,minePackage):#convierte una nube de enlaces a formato csv para poder visualizarla con el programa Gephi
         clouds=minePackage['clouds']
@@ -221,5 +206,6 @@ if __name__ == '__main__':
         flush()
     
     # Inicio del proceso del webminer.
+    print "Inicio del proceso de webminer"
     wm = WebMinerController(id_request = request_id , searchKey = consulta,  urls = urls , directorio = nombre_directorio)
     wm.run()

@@ -29,13 +29,16 @@ def generar_consulta_bing(q):
 
     return bing
 
+
+# Metodo que utiliza la libreria beautifulsoup para obtener las urls de la busqueda.
+# Se ejecuta cuando el primer metodo falla
 def recuperar_urls_beautifulsoup(q):
     bing = []
     for consulta in q:
         consulta = consulta.replace(" ", "+")
 
-
-        sauce = urllib2.urlopen("https://www.bing.com/search?q=" + consulta + "&qs=n&form=QBLH&pq=tea+min&sc=8-7&sp=-1&sk=&cvid=A8821870F285403DAC8D935AD548A053").read()
+        sauce = urllib2.urlopen(
+            "https://www.bing.com/search?q=" + consulta + "&qs=n&form=QBLH&pq=tea+min&sc=8-7&sp=-1&sk=&cvid=A8821870F285403DAC8D935AD548A053").read()
         soup = bs.BeautifulSoup(sauce, 'lxml')
 
         divs = soup.findAll("li", {"class": "b_algo"})

@@ -61,7 +61,7 @@ class EngineSearchController(Controller):
         return urls
 
 
-
+''' Controlador del Crawler'''
 class CrawlerController(Controller):
 
     def __init__(self,progress,directorio,id_request):
@@ -96,6 +96,7 @@ class CrawlerController(Controller):
 
                 true_nodes=self.trueNodesSelection(cloud)
                 for n in true_nodes:
+                    ''' Se setea en false para definir que dicha url fue explorada y no volver a utilizarlo'''
                     cloud.graph.node[n]['select']=False
                     if not self.progress.get_stop():
                         crawler7 = SimpleCrawler1(n,delay=0.1)
@@ -106,6 +107,7 @@ class CrawlerController(Controller):
                             while len(crawler7.visited)<cloudSize:
                                     if not self.progress.get_stop():
                                         # print "Explorando ..."
+                                        ''' El crawler tiene method none. Es decir, no prioriza entre amplitud o profundidad '''
                                         crawler7.crawl(method=None)
                                         time+=1
                                         if time>cloudSize*10:
@@ -142,27 +144,6 @@ class CrawlerController(Controller):
         if not self.progress.get_stop():
             self.progress.set_crawlerState("Finalizado")
 
-
-
-
-
-class MEGA_CrawlerController(Controller):#Genera aleatoriamente conexiones interdominio mas complejas que crawler_7
-
-    def __init__(self,progress):
-        super(MEGA_CrawlerController,self).__init__(progress)
-
-    def start(self,minePackage,enlaces):
-        clouds=minePackage['clouds']
-        G=list()
-        for cloud in clouds:
-            G.append(cloud.graph)
-        m=MEGA(G)
-        MEGA_nodos=m.get()
-        MEGA_cloud=m.generate(MEGA_nodos,enlaces)
-        minePackage['clouds']=[Structure(MEGA_cloud,'mega.com')]
-
-
-
 class InformationRetrievalController(Controller):
 
     def __init__(self,progress):
@@ -186,50 +167,7 @@ class InformationRetrievalController(Controller):
                     unMethodData = MethodData("",cloud.graph.node[n]['link'])
                     cloud.graph.node[n]['methodData'] = unMethodData
 
-
-class StorageController(Controller):
-
-    def __init__(self,progress):
-        super(StorageController,self).__init__(progress)
-
-    def save(self,minePackage):
-        clouds=minePackage['clouds']
-        searchKey=minePackage['searchKey']
-        str_clouds= pickle.dumps(clouds)#serializa el objeto que contiene las nubes
-        try:
-            save(searchKey,str_clouds)
-            print
-            print '---------'
-            print 'Guardado!   =)'
-            print '---------'
-            print
-        except:
-            print
-            print '-------------------------------'
-            print '#ATENCION: El registro ya existe! =/'
-            print '-------------------------------'
-            print
-
-    def get(self,searchKey):
-        minePackage={}
-        try:
-            search=get(searchKey)
-            minePackage['searchKey']=search.searchKey
-            minePackage['clouds']=pickle.loads(search.structures)
-            print 'Clave de búsqueda encontrada!   =)'
-            return minePackage
-        except:
-            print '#ATENCION: La clave de búsqueda no existe! =('
-
-    def removeAll(self):
-        try:
-            drop()
-            print 'Base de datos eliminada!'
-        except:
-            print '#ERROR'
-
-
-
+''' Controlador del Scraper '''
 class ScraperController(Controller):
 
     #scraper=None
@@ -241,6 +179,8 @@ class ScraperController(Controller):
 
         scraperLinks=[]
         clouds=minePackage['clouds']
+
+        ''' Se recorre la nube para agregar los nodos en un conjunto nuevo'''
         for cloud in clouds:
             if not self.progress.get_stop():
                 for n in cloud.graph.nodes():
@@ -251,11 +191,13 @@ class ScraperController(Controller):
                         break
             else:
                 break
+        ''' Inicio del proceso del scraper. '''
         if not self.progress.get_stop():
             self.scraper.start(scraperLinks,self.progress,directorio,id_request,minePackage['searchKey'])
         else:
             self.progress.set_scrapingState('Detenido')
 
+''' Controlador para generar los logs del sistema '''
 class LogsController(object):
 
     directorio = ""

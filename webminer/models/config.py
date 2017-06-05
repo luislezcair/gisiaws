@@ -3,13 +3,13 @@ import MySQLdb
 
 class config(object):
     """docstring for config."""
-    typedb = ""
-    db = ""
-    host = ""
-    user = ""
-    password = ""
-    pathLog = ""
-    repositoryPath = ""
+    typedb = "mysql"
+    db = "gisiaws"
+    host = "localhost"
+    user = "root"
+    password = "motocross1"
+    pathLog = "Log/"
+    repositoryPath = "Repositorio/"
 
 
 
