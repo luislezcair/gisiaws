@@ -98,7 +98,7 @@ class SimpleCrawler1(Crawler):
             if link.url in self.structure.nodes():
                 self.structure.remove_node(link.url)
 
-    ''' funcion para preveir que el crawler guie su exploracion a paginas como facebook o twitter.'''
+    ''' funcion para prevenir que el crawler guie su exploracion a paginas como facebook o twitter.'''
     def priority(self, link, method=None):
        #if "linkedin" in link.url or "twitter" in link.url or "facebook" in link.url or "google" in link.url:
        if self.badLink.detect(link.url):
