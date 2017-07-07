@@ -1,11 +1,9 @@
-import threading, time, csv, operator
+import threading, time, operator
 from optparse import OptionParser
 import networkx as nx
 from pattern.web import URL
 from progress import *
 from controllers import *
-from search.testLinks import TestLinksClass #solo para hacer pruebas sin motor de busqueda
-from draw.twoDimensionalDrawing import *
 from algorithms.retrievalAlgorithms import *
 from algorithms.tools.algorithmTools import QueryProcessor
 
@@ -36,7 +34,6 @@ class WebMinerController(object):
         self.cloudSize=cloudSize
         self.logController = LogsController(self.directorio)
         self.progress=Process(id_request,self.logController)
-        ###self.engineSearchController=EngineSearchController(self.progress)
         self.crawlerController=CrawlerController(self.progress,directorio,id_request)
         self.IRController=InformationRetrievalController(self.progress)
         self.scraperController=ScraperController(self.progress)
@@ -82,16 +79,6 @@ class WebMinerController(object):
             clouds.append(Structure(graph,url.domain))
         return clouds
 
-    def search(self):
-        if self.test:
-            urls=TestLinksClass()
-            links=urls.getTestLinks(self.numOfClouds)
-            return links
-        else:
-            print "##### ",self.searchKey
-            urls=self.engineSearchController.start(self.searchKey)
-            return urls
-
     def crawler(self):
         self.crawlerController.start(self.minePackage)
 
@@ -109,59 +96,6 @@ class WebMinerController(object):
     def getState(self):
         print self.progress.get_progress()
 
-    ##### FUNCIONES ADICIONALES ######
-    def printClouds(self,minePackage):#Imprime nubes en consola
-        clouds=minePackage['clouds']
-        print '-'*100
-        print 'query:',minePackage['searchKey']
-        for cloud in clouds:
-            print cloud.domain
-            print cloud
-            print cloud.graph.nodes(True)
-
-    def drawClouds(self,minePackage): #Visulalizacion grafica de las nubes de enlaces
-        clouds=minePackage['clouds']
-        draw=DrawCloud()
-        draw.plotFunction(clouds)
-        #for cloud in clouds:
-            #nx.draw(cloud.structure,node_size=300,alpha=0.8,node_color="cyan")
-
-    def deleteSearch(self,searchKey):#Elimina una nube relacionada a una query de la base de datos
-        pass
-
-    def csv(self,minePackage):#convierte una nube de enlaces a formato csv para poder visualizarla con el programa Gephi
-        clouds=minePackage['clouds']
-        csvNodes=open('/home/matt/clusterProject/webMining/csv/nodes.csv','w')
-        csvEdges=open('/home/matt/clusterProject/webMining/csv/edges.csv','w')
-        csvNodes=csv.writer(csvNodes,delimiter=';')
-        csvEdges=csv.writer(csvEdges,delimiter=';')
-        print('Escribiendo archivo "salida.csv"...')
-        csvNodes.writerow(['Label','Id','Weight'])
-        csvEdges.writerow(['Source','Target','Type'])
-
-        for cloud in clouds:
-            for n in cloud.graph.nodes():
-                label=cloud.graph.node[n]['link']
-                ID=cloud.graph.node[n]['ID']
-                weight=cloud.graph.node[n]['weight']
-                csvNodes.writerow([label,ID,weight])
-                G=cloud.graph
-                succ=G.successors(cloud.graph.node[n]['link'])
-                for s in succ:
-                    nod=cloud.graph.node[s]
-                    source=ID
-                    target=cloud.graph.node[s]['ID']
-                    csvEdges.writerow([source,target,'Directed'])
-
-    def report(self,minePackage):
-        clouds=minePackage['clouds']
-        visited=0
-        for cloud in clouds:
-           visited+=len(cloud.graph)
-        totalLinks=len(self.search())*self.cloudSize
-        print "  Total links.....", totalLinks
-        print "Visited links.....", visited
-        print "Missing links.....", totalLinks-visited
 
 # Inicio del proceso de Webminer #
 # Parametro: request_id del proceso iniciado #
