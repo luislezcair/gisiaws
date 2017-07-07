@@ -82,9 +82,6 @@ class WebMinerController(object):
     def getProgress(self):
         return self.progress
 
-    def getState(self):
-        print self.progress.get_progress()
-
 
 # Inicio del proceso de Webminer #
 # Parametro: request_id del proceso iniciado #
