@@ -29,7 +29,6 @@ class WebMinerController(object):
         super(WebMinerController, self).__init__()
         self.minePackage=dict()
         self.searchKey=searchKey
-        self.n=0
         self.directorio = directorio
         self.cloudSize=cloudSize
         self.logController = LogsController(self.directorio)
