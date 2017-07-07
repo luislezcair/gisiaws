@@ -36,7 +36,7 @@ class WebMinerController(object):
         self.cloudSize=cloudSize
         self.logController = LogsController(self.directorio)
         self.progress=Process(id_request,self.logController)
-        self.engineSearchController=EngineSearchController(self.progress)
+        ###self.engineSearchController=EngineSearchController(self.progress)
         self.crawlerController=CrawlerController(self.progress,directorio,id_request)
         self.IRController=InformationRetrievalController(self.progress)
         self.scraperController=ScraperController(self.progress)
