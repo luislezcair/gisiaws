@@ -34,8 +34,6 @@ class WebMinerController(object):
         self.logController = LogsController(self.directorio)
         self.progress=Process(id_request,self.logController)
         self.crawlerController=CrawlerController(self.progress,directorio,id_request)
-        self.IRController=InformationRetrievalController(self.progress)
-        self.scraperController=ScraperController(self.progress)
         self.urls = urls
         self.id_request = id_request
     
@@ -80,14 +78,6 @@ class WebMinerController(object):
 
     def crawler(self):
         self.crawlerController.start(self.minePackage)
-
-    def informationRetrieval(self):
-        self.IRController.start(self.minePackage)
-
-        self.IRController.start(minePackage,pattern_methods,own_methods)
-
-    def scraper(self,minePackage):
-        self.scraperController.start(minePackage,self.directorio,self.id_request)
 
     def getProgress(self):
         return self.progress
