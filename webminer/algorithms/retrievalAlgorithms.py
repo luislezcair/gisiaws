@@ -107,92 +107,6 @@ class Algorithm(object):
         return self.name
 
 
-
-'''#### Booleano ################################################################'''
-class Boolean(Algorithm):
-
-    def __init__(self,name):
-        super(Boolean,self).__init__(name)
-
-    def run(self,minePackage):
-        self.tokenizer(minePackage)
-        self.booleanFilter(minePackage)
-
-    def booleanFilter(self,minePackage):
-        relevant=[]
-        notRelevant=[]
-        clouds=minePackage['clouds']
-        for cloud in clouds:
-            for n in cloud.graph.nodes():
-                methodData=cloud.graph.node[n]['methodData']
-                document=methodData.getData()
-                if ( (('analysi' in document)and('pattern' in document)and('googl' in document)) and ('coock' in document)):
-                    relevant.append(cloud.graph.node[n]['link'])
-                else:
-                    notRelevant.append(cloud.graph.node[n]['link'])
-        print 'INFORMATION RETRIEVAL ALGORITHM: Boolean method'
-        print
-        print 'Relevant links:'
-        for rel in relevant:
-            print rel
-        print 'Total:',len(relevant)
-        print
-        print 'Not relevant links:'
-        for nrel in notRelevant:
-            print nrel
-        print 'Total:',len(notRelevant)
-
-
-
-'''#### Booleano Extendido #####################################################'''
-class ExtendedBoolean(Algorithm):
-
-    def __init__(self,name):
-        super(ExtendedBoolean,self).__init__(name)
-
-    def run(self,minePackage):
-        self.tokenizer(minePackage)
-        self.booleanFilter(minePackage)
-
-    def booleanFilter(self,minePackage):
-        weightedList={}
-        query='python','support','express','sign','zero','mathemat','ceil'
-        clouds=minePackage['clouds']
-        for cloud in clouds:
-            for n in cloud.graph.nodes():
-                methodData=cloud.graph.node[n]['methodData']
-                document=methodData.getData()
-                #print len(document)
-                weightedList[cloud.graph.node[n]['link']]=self.extendedOperator(document,query)
-        self.booleanRanking(weightedList)
-
-    def extendedOperator(self,document,query):
-        tf=[]
-        for w in query:
-            if w in document:
-                tf.append(document[w])
-            else:
-                tf.append(0)
-        return tf[0]*tf[1]*tf[2]+(tf[3]+tf[4]+tf[5]+tf[6])
-
-    def booleanRanking(self,weightedList):
-        print 'INFORMATION RETRIEVAL ALGORITHM: Extended boolean method'
-        print
-        print 'Ranking:'
-        print
-        ranking=sorted(weightedList.items(),key = lambda x:x[1])
-        #Orden Descendente:
-        i=len(ranking)-1
-        elem=-1
-        f=1
-        while i>=0:
-            print f,'|||',ranking[elem][0],'||| W=',ranking[elem][1]
-            elem-=1
-            i-=1
-            f+=1
-
-
-
 '''#### Modelo de espacio vectorial #####################################################'''
 class VectorSpaceModel(Algorithm):
     def __init__(self,name):
@@ -202,19 +116,6 @@ class VectorSpaceModel(Algorithm):
         #query=minePackage['searchKey']
         vectorSimilarity=self.vectorSim()
         vectorSimilarity.calculate(minePackage,progress)
-        #self.ranking(minePackage,progress)
-
-'''#### Documento Vector #################################################################'''
-class DocumentVector(Algorithm):
-    def __init__(self,name):
-        super(DocumentVector,self).__init__(name)
-    def run(self,minePackage,progress):
-        weightedList={}
-        self.tokenizer(minePackage)
-        processor=self.queryProcessor()
-        processor.processor(minePackage)
-        distance=self.distanceVector()
-        distance.run(minePackage)
         #self.ranking(minePackage,progress)
 
 '''#### Enfoque Ponderado ################################################################'''
@@ -268,6 +169,28 @@ class CRank(Algorithm):
         rankingColaborativo.run(minePackage)
         self.ranking(minePackage,progress) # se realiza el proceso de ranking
 
+        
+        
+
+'''####Modelo Booleano - Not implemented################################################################'''
+class Boolean(Algorithm):
+
+    def __init__(self,name):
+        super(Boolean,self).__init__(name)
+
+    def run(self,minePackage):
+        pass
+
+
+'''####Modelo Booleano Extendido - Not implemented#####################################################'''
+class ExtendedBoolean(Algorithm):
+
+    def __init__(self,name):
+        super(ExtendedBoolean,self).__init__(name)
+
+    def run(self,minePackage):
+        pass
+
 '''#### Support Vector Machine - Not implemented ####################################################'''
 class SupportVectorMachine(Algorithm):
     def __init__(self,name):
@@ -275,7 +198,7 @@ class SupportVectorMachine(Algorithm):
     def run(self,minePackage):
         pass
 
-'''#### Latent Semantic Analysis  Not implemented ##################################################'''
+'''#### Latent Semantic Analysis - Not implemented ##################################################'''
 class LatentSemanticAnalysis(Algorithm):
     def __init__(self,name):
         super(LatentSemanticAnalysis,self).__init__(name)
