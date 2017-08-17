@@ -73,32 +73,7 @@ class Algorithm(object):
         else:
             progress.set_IRState('Detenido')
 
-    def printRanking(self,weightedList,progress):
-        print
-        print 'INFORMATION RETRIEVAL ALGORITHM: Vector Space Model && Weighted Approach && OKAPI-BM25'
-        print
-        print 'Ranking:'
-        print
-        ranking=sorted(weightedList.items(),key = lambda x:x[1][3])
-        i=len(ranking)-1
-        elem=-1
-        f=1
-        while i>=0:
-            if not progress.get_stop():
-                print '-'*100
-                print f,'|||',ranking[elem][0],'|||','TOTAL SCORE:',ranking[elem][1][3]
-                print '  VSM:',ranking[elem][1][0]
-                print '   WA:',ranking[elem][1][1]
-                print 'OKAPI:',ranking[elem][1][2]
-                print 'CRANK:', ranking[elem][1][3]
-                #print f,'|||',ranking[elem][0],'|||',ranking[elem][1][0],'|||',ranking[elem][1][1],'|||',ranking[elem][1][2],'|||',ranking[elem][1][3] #imprime en orden descendente
-                elem-=1
-                i-=1
-                f+=1
-            else:
-                progress.set_IRState('Detenido')
-                break
-        print
+    
 
     def crank_Scoring(self):
         return CRanking()
@@ -116,32 +91,23 @@ class VectorSpaceModel(Algorithm):
         #query=minePackage['searchKey']
         vectorSimilarity=self.vectorSim()
         vectorSimilarity.calculate(minePackage,progress)
-        #self.ranking(minePackage,progress)
 
 '''#### Enfoque Ponderado ################################################################'''
 class WeightedApproach(Algorithm):
     def __init__(self,name):
         super(WeightedApproach,self).__init__(name)
     def run(self,minePackage,progress):
-        #weightedList={}
-        # self.tokenizer(minePackage)#Descarga contenido y lo tokeniza
-        # processor=self.queryProcessor()#Se instancia un procesador de query
         weightingProccess=self.weighting()#Se instancia la clase encargada de ponderar contenido de los nodos
         weightingProccess.run(minePackage)#Se inicia proceso de ponderacion de nodos
-        #self.ranking(minePackage,progress)#Se realiza el proceso de ranking
 
 '''#### Okapi BM25 ########################################################################'''
 class Okapi(Algorithm):
     def __init__(self,name):
         super(Okapi,self).__init__(name)
     def run(self,minePackage,progress):
-        #weightedList={}
-        #self.tokenizer(minePackage) #Descarga contenido y lo tokeniza
-        #processor=self.queryProcessor() #Se instancia un procesador de query
-        #processor.processor(minePackage) #Se tokeniza la query
         score=self.okapi_BM25() #se instancia el modelo BM25
         score.run(minePackage) #se ejecuta el calculo de Okapi score(D,Q)
-        # self.ranking(minePackage,progress) # se realiza el proceso de ranking
+        
 
 '''
 FUNCIONAMIENTO:
