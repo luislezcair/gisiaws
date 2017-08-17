@@ -1,6 +1,6 @@
 #import time
 # -*- coding: utf-8 -*-
-from tools.algorithmTools import * #Herramientas de calculo para algoritmo booleando y modelo espacio vectorial
+from tools.algorithmTools import * #Herramientas de calculo del modelo espacio vectorial
 from tools.okapiTools.okapi import * #Heramientas de calculo para algoritmo okapi
 from tools.crankTools.crank import * #Heramientas de calculo para algoritmo Crank
 
