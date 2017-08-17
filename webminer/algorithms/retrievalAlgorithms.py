@@ -3,8 +3,7 @@
 from tools.algorithmTools import * #Herramientas de calculo para algoritmo booleando y modelo espacio vectorial
 from tools.okapiTools.okapi import * #Heramientas de calculo para algoritmo okapi
 from tools.crankTools.crank import * #Heramientas de calculo para algoritmo Crank
-#from tools.svmTools.svm import * #Herramientas de calculo para algoritmo basado en maquinas de vectores de soporte
-#from tools.lsaTools.lsa import * #Herramientas de calculo para algoritmo de analisis semantico latente
+
 
 #Inicio
 class Algorithm(object):
