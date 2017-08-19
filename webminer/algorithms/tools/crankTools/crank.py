@@ -70,7 +70,7 @@ class CRanking:
             if len(cloud.graph.predecessors(node))!=0:
                 self.levels.append(cloud.graph.predecessors(node))
                 for n in cloud.graph.predecessors(node):
-                    self.backLinks(cloud,node,repeat)
+                    self.backLinks(cloud,node,repeat) # llamada recursiva, se usa para recorrer el grafo
 
     ''' Funcion definida en el paper del crank para el calculo de la relevancia '''
     def coord(self,documento, consulta):
