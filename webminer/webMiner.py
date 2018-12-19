@@ -22,7 +22,7 @@ class Structure:#es un clase auxiliar para encapsular una estructura.
 
 class WebMinerController(object):
 
-    def __init__(self,cloudSize = 75,searchKey = "" ,id_request = 0, urls = [] , directorio = ""):
+    def __init__(self,cloudSize = 30,searchKey = "" ,id_request = 0, urls = [] , directorio = ""):
         super(WebMinerController, self).__init__()
         self.minePackage=dict()
         self.searchKey=searchKey
