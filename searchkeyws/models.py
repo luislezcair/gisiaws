@@ -3,7 +3,7 @@ from django.db import models
 
 class WSRequest(models.Model):
     id_proyecto = models.IntegerField()
-    nombre_directorio = models.CharField(max_length=50)
+    nombre_directorio = models.CharField(max_length=255)
 
 
 class WSResponse(models.Model):

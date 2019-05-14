@@ -35,7 +35,8 @@ def recuperar_urls_beautifulsoup(q):
         consulta = consulta.replace(" ", "+")
 
 
-        sauce = urllib2.urlopen("https://www.bing.com/search?q=" + consulta + "&qs=n&form=QBLH&pq=tea+min&sc=8-7&sp=-1&sk=&cvid=A8821870F285403DAC8D935AD548A053").read()
+        # sauce = urllib2.urlopen("https://www.bing.com/search?q=" + consulta + "&qs=n&form=QBLH&pq=tea+min&sc=8-7&sp=-1&sk=&cvid=A8821870F285403DAC8D935AD548A053").read()
+        sauce = urllib2.urlopen("https://www.bing.com/search?q=" + consulta).read()
         soup = bs.BeautifulSoup(sauce, 'lxml')
 
         divs = soup.findAll("li", {"class": "b_algo"})

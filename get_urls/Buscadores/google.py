@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # To change this license header, choose License Headers in Project Properties.
 # To change this template file, choose Tools | Templates
 # and open the template in the editor.
@@ -15,8 +17,8 @@ def generar_consulta_google(q):
     reload(sys)
     sys.setdefaultencoding('utf8')
 
-    # engine_google = Google(license="AIzaSyCvvHb8SYgHvS5gEIQabxuJ0Kl0sYdHl9U", language="en")
-    engine_google = Google(license="AIzaSyCKlCEJ41mE_6gqTN2AI9J4iSB-2L55zR0", language="en")
+    engine_google = Google(license="AIzaSyCvvHb8SYgHvS5gEIQabxuJ0Kl0sYdHl9U", language="en")
+    # engine_google = Google(license="AIzaSyCKlCEJ41mE_6gqTN2AI9J4iSB-2L55zR0", language="en")
     for consulta in q:
         for i in range(1, 2):
             for result in engine_google.search(consulta, start=i, count=10, type=SEARCH, cached=False):

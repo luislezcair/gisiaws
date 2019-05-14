@@ -26,21 +26,25 @@ def generar_consulta_intelligo(consultas):
     driver.set_script_timeout(50)
     driver.set_window_size(1280, 1024)
     # driver.maximize_window()
-    for consulta in consultas:
+
+    consultas_n = [consultas[0]]
+    for consulta in consultas_n:
         driver.get("http://patentes.explora-intelligo.info/index.html?setLng=en")
         ids = driver.find_element_by_id('btnCloseHelp')
         ids.click()
         driver.find_element_by_id('tbQuery').send_keys(consulta)
         driver.find_element_by_id('btnQuery').click()
-        try:
-            element = WebDriverWait(driver, 30).until(
-                                                      EC.presence_of_element_located((By.ID, "svg_graph"))
-                                                      )
-        finally:
-            html = driver.find_element_by_id('docs')
-            contenido = html.get_attribute('innerHTML')
-            soup = BeautifulSoup(contenido)
-            urls.append(get_url(soup))
+
+#        try:
+
+	element = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, "svg_graph")))
+
+#        finally:
+
+        html = driver.find_element_by_id('docs')
+        contenido = html.get_attribute('innerHTML')
+        soup = BeautifulSoup(contenido)
+        urls.append(get_url(soup))
 
     urls_intelligo = []
     for url_clave in urls:

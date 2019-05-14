@@ -28,6 +28,9 @@ class WSRequestViewSet(viewsets.ModelViewSet):
             data = wsrequest.validated_data
             json_respuesta = obtener_urls(data)
 
+            print "------ JSON_RESPUESTA ------"
+            print json_respuesta
+
             # Agrega el id_request a la respuesta
             json_respuesta['id_request'] = request_object.id
             serializer = WSResponseSerializer(data=json_respuesta)
@@ -35,7 +38,10 @@ class WSRequestViewSet(viewsets.ModelViewSet):
             if serializer.is_valid():
                 response = serializer.data
             else:
-                response = {"status": "Invalid response from search engine"}
+		response = serializer.initial_data
+        else:
+          print "INVALID REQUEST"
+
         return Response(data=response)
 
 
