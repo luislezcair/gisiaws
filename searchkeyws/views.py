@@ -28,9 +28,6 @@ class WSRequestViewSet(viewsets.ModelViewSet):
             data = wsrequest.validated_data
             json_respuesta = obtener_urls(data)
 
-            print "------ JSON_RESPUESTA ------"
-            print json_respuesta
-
             # Agrega el id_request a la respuesta
             json_respuesta['id_request'] = request_object.id
             serializer = WSResponseSerializer(data=json_respuesta)
