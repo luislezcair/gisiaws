@@ -1,10 +1,9 @@
 #import time
 # -*- coding: utf-8 -*-
-from tools.algorithmTools import * #Herramientas de calculo para algoritmo booleando y modelo espacio vectorial
+from tools.algorithmTools import * #Herramientas de calculo del modelo espacio vectorial
 from tools.okapiTools.okapi import * #Heramientas de calculo para algoritmo okapi
 from tools.crankTools.crank import * #Heramientas de calculo para algoritmo Crank
-#from tools.svmTools.svm import * #Herramientas de calculo para algoritmo basado en maquinas de vectores de soporte
-#from tools.lsaTools.lsa import * #Herramientas de calculo para algoritmo de analisis semantico latente
+
 
 #Inicio
 class Algorithm(object):
@@ -73,124 +72,13 @@ class Algorithm(object):
         else:
             progress.set_IRState('Detenido')
 
-    def printRanking(self,weightedList,progress):
-        print
-        print 'INFORMATION RETRIEVAL ALGORITHM: Vector Space Model && Weighted Approach && OKAPI-BM25'
-        print
-        print 'Ranking:'
-        print
-        ranking=sorted(weightedList.items(),key = lambda x:x[1][3])
-        i=len(ranking)-1
-        elem=-1
-        f=1
-        while i>=0:
-            if not progress.get_stop():
-                print '-'*100
-                print f,'|||',ranking[elem][0],'|||','TOTAL SCORE:',ranking[elem][1][3]
-                print '  VSM:',ranking[elem][1][0]
-                print '   WA:',ranking[elem][1][1]
-                print 'OKAPI:',ranking[elem][1][2]
-                print 'CRANK:', ranking[elem][1][3]
-                #print f,'|||',ranking[elem][0],'|||',ranking[elem][1][0],'|||',ranking[elem][1][1],'|||',ranking[elem][1][2],'|||',ranking[elem][1][3] #imprime en orden descendente
-                elem-=1
-                i-=1
-                f+=1
-            else:
-                progress.set_IRState('Detenido')
-                break
-        print
+    
 
     def crank_Scoring(self):
         return CRanking()
 
     def __str__(self):
         return self.name
-
-
-
-'''#### Booleano ################################################################'''
-class Boolean(Algorithm):
-
-    def __init__(self,name):
-        super(Boolean,self).__init__(name)
-
-    def run(self,minePackage):
-        self.tokenizer(minePackage)
-        self.booleanFilter(minePackage)
-
-    def booleanFilter(self,minePackage):
-        relevant=[]
-        notRelevant=[]
-        clouds=minePackage['clouds']
-        for cloud in clouds:
-            for n in cloud.graph.nodes():
-                methodData=cloud.graph.node[n]['methodData']
-                document=methodData.getData()
-                if ( (('analysi' in document)and('pattern' in document)and('googl' in document)) and ('coock' in document)):
-                    relevant.append(cloud.graph.node[n]['link'])
-                else:
-                    notRelevant.append(cloud.graph.node[n]['link'])
-        print 'INFORMATION RETRIEVAL ALGORITHM: Boolean method'
-        print
-        print 'Relevant links:'
-        for rel in relevant:
-            print rel
-        print 'Total:',len(relevant)
-        print
-        print 'Not relevant links:'
-        for nrel in notRelevant:
-            print nrel
-        print 'Total:',len(notRelevant)
-
-
-
-'''#### Booleano Extendido #####################################################'''
-class ExtendedBoolean(Algorithm):
-
-    def __init__(self,name):
-        super(ExtendedBoolean,self).__init__(name)
-
-    def run(self,minePackage):
-        self.tokenizer(minePackage)
-        self.booleanFilter(minePackage)
-
-    def booleanFilter(self,minePackage):
-        weightedList={}
-        query='python','support','express','sign','zero','mathemat','ceil'
-        clouds=minePackage['clouds']
-        for cloud in clouds:
-            for n in cloud.graph.nodes():
-                methodData=cloud.graph.node[n]['methodData']
-                document=methodData.getData()
-                #print len(document)
-                weightedList[cloud.graph.node[n]['link']]=self.extendedOperator(document,query)
-        self.booleanRanking(weightedList)
-
-    def extendedOperator(self,document,query):
-        tf=[]
-        for w in query:
-            if w in document:
-                tf.append(document[w])
-            else:
-                tf.append(0)
-        return tf[0]*tf[1]*tf[2]+(tf[3]+tf[4]+tf[5]+tf[6])
-
-    def booleanRanking(self,weightedList):
-        print 'INFORMATION RETRIEVAL ALGORITHM: Extended boolean method'
-        print
-        print 'Ranking:'
-        print
-        ranking=sorted(weightedList.items(),key = lambda x:x[1])
-        #Orden Descendente:
-        i=len(ranking)-1
-        elem=-1
-        f=1
-        while i>=0:
-            print f,'|||',ranking[elem][0],'||| W=',ranking[elem][1]
-            elem-=1
-            i-=1
-            f+=1
-
 
 
 '''#### Modelo de espacio vectorial #####################################################'''
@@ -202,45 +90,23 @@ class VectorSpaceModel(Algorithm):
         #query=minePackage['searchKey']
         vectorSimilarity=self.vectorSim()
         vectorSimilarity.calculate(minePackage,progress)
-        #self.ranking(minePackage,progress)
-
-'''#### Documento Vector #################################################################'''
-class DocumentVector(Algorithm):
-    def __init__(self,name):
-        super(DocumentVector,self).__init__(name)
-    def run(self,minePackage,progress):
-        weightedList={}
-        self.tokenizer(minePackage)
-        processor=self.queryProcessor()
-        processor.processor(minePackage)
-        distance=self.distanceVector()
-        distance.run(minePackage)
-        #self.ranking(minePackage,progress)
 
 '''#### Enfoque Ponderado ################################################################'''
 class WeightedApproach(Algorithm):
     def __init__(self,name):
         super(WeightedApproach,self).__init__(name)
     def run(self,minePackage,progress):
-        #weightedList={}
-        # self.tokenizer(minePackage)#Descarga contenido y lo tokeniza
-        # processor=self.queryProcessor()#Se instancia un procesador de query
         weightingProccess=self.weighting()#Se instancia la clase encargada de ponderar contenido de los nodos
         weightingProccess.run(minePackage)#Se inicia proceso de ponderacion de nodos
-        #self.ranking(minePackage,progress)#Se realiza el proceso de ranking
 
 '''#### Okapi BM25 ########################################################################'''
 class Okapi(Algorithm):
     def __init__(self,name):
         super(Okapi,self).__init__(name)
     def run(self,minePackage,progress):
-        #weightedList={}
-        #self.tokenizer(minePackage) #Descarga contenido y lo tokeniza
-        #processor=self.queryProcessor() #Se instancia un procesador de query
-        #processor.processor(minePackage) #Se tokeniza la query
         score=self.okapi_BM25() #se instancia el modelo BM25
         score.run(minePackage) #se ejecuta el calculo de Okapi score(D,Q)
-        # self.ranking(minePackage,progress) # se realiza el proceso de ranking
+        
 
 '''
 FUNCIONAMIENTO:
@@ -260,22 +126,40 @@ class CRank(Algorithm):
     def __init__(self,name):
         super(CRank,self).__init__(name)
     def run(self,minePackage,progress):
-        #print 'AHORA SE HACE EL CRANK::'
-        #self.tokenizer(minePackage) #Descarga contenido y lo tokeniza
-        #processor=self.queryProcessor() #Se instancia un procesador de query
-        #processor.processor(minePackage) #Se tokeniza la query
         rankingColaborativo=self.crank_Scoring()#se instancia el modelo de recuperacion CRANK
         rankingColaborativo.run(minePackage)
         self.ranking(minePackage,progress) # se realiza el proceso de ranking
 
-'''#### Support Vector Machine ####################################################'''
+        
+        
+
+'''####Modelo Booleano - Not implemented################################################################'''
+class Boolean(Algorithm):
+
+    def __init__(self,name):
+        super(Boolean,self).__init__(name)
+
+    def run(self,minePackage):
+        pass
+
+
+'''####Modelo Booleano Extendido - Not implemented#####################################################'''
+class ExtendedBoolean(Algorithm):
+
+    def __init__(self,name):
+        super(ExtendedBoolean,self).__init__(name)
+
+    def run(self,minePackage):
+        pass
+
+'''#### Support Vector Machine - Not implemented ####################################################'''
 class SupportVectorMachine(Algorithm):
     def __init__(self,name):
         super(SupportVectorMachine,self).__init__(name)
     def run(self,minePackage):
         pass
 
-'''#### Latent Semantic Analysis ##################################################'''
+'''#### Latent Semantic Analysis - Not implemented ##################################################'''
 class LatentSemanticAnalysis(Algorithm):
     def __init__(self,name):
         super(LatentSemanticAnalysis,self).__init__(name)

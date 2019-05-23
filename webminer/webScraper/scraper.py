@@ -11,7 +11,9 @@ import os, sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from webminer.models.config import *
 
-
+'''
+Clase que se encarga de descargar el contenido de cada url y guardarlo en un archivo.
+'''
 
 class WebScraperClass:
 
@@ -26,7 +28,15 @@ class WebScraperClass:
         #htmlContent = plaintext(s, keep={'h1':[], 'h2':[], 'strong':[], 'a':['href']})
         txtContent = plaintext(htmlContent, keep={'a':['href']})
         return htmlContent
-
+    
+    '''
+    Inicio del scraper.
+    @scrpaerLinks: conjunto de enlaces para descargar
+    @progress: objeto para indicar el progreso del webminer.
+    @directorio: ubicacion para el almacenamiento de archivos.
+    @id_request del proyecto ejecutado.
+    @searchKey: consulta de busqueda.
+    '''
     def start(self,scraperLinks,progress,directorio,id_request,searchKey):
         unConfig = config()
         step=0
@@ -80,10 +90,13 @@ class WebScraperClass:
                     logController.Warning("Json Eliminado: " + str(file))
         except Exception as e:
             logController = LogsController(directorio)
-            logController.Error("L87 Scraper")
+            logController.Error("Scraper Error: " + str(e))
             print str(e)
             pass
 
+    '''
+    Se crean los top 50 documentos en archivos .txt.
+    '''
     def crearTop50(self,scraperLinks,directorio,unConfig):
         filename = unConfig.pathLog+directorio+"top50.txt"
         if not os.path.isfile(filename):
@@ -95,12 +108,19 @@ class WebScraperClass:
         archivo.write("\n")
         archivo.close()
 
-
+    '''
+    Al generarse un nuevo top 50, se eliminan los existentes.    
+    '''
     def eliminarArchivos(self,directorio,nombre):
         os.chdir(directorio)
         for file in glob.glob(nombre+".*"):
             os.remove(directorio+"/"+file)
 
+    '''
+    Metodo Ranking reciproco. Destinado a unificar diferentes ranking en una sola lista.
+    Explicado en Metodos/RankingReciproco.
+    Si la query contiene la palabra tea, se agrega el metodo Weigth_Wa
+    '''
     def rankear(self,scraperLinks,searchKey):
 
         if "tea" in searchKey:
@@ -127,6 +147,10 @@ class WebScraperClass:
         for link in scraperLinks:
             link['totalScore'] = 1 / float(link['totalScore'])
 
+    '''
+    Metodo para unificar la lista. Evita duplicados y solo presenta uno por dominio.
+    Luego, aquellas paginas con el mismo dominio son agrupados en colecciones internas.
+    '''
     def unificarLista(self,scraperLinks):
         listaDominios = []
         listaUrls = []
@@ -160,16 +184,22 @@ class WebScraperClass:
             contador+=1
         return contador
 
+'''
+Clase para generar los archivos.
+'''
 class FileGenerator:
-
-
     config = None
     repositoryPath = ""
     def __init__(self):
         self.config = config()
         self.repositoryPath = self.config.repositoryPath
         pass
-
+    
+    '''
+    El archivo .txt con el contenido del documento esta acompañado de un json.
+    Este json contiene la metadata de dicho documento. 
+    Metadata: Url, Peso, Nombre del txt asociado, id_request, urls del mismo dominio (ordenados).
+    '''
     def json(self,minePackageLink,fileNameJson,fileNameDocument,link,id_request,directorio):
         document={}
         webContent={}
@@ -182,7 +212,7 @@ class FileGenerator:
         contentList.append(webContent)
         document["document"]=contentList
 
-
+        # Creacion del json y verificacion de la existencia del html en .txt #
         self.write_file(minePackageLink,fileNameDocument,directorio)
         ruta = self.repositoryPath
         if not open(ruta + directorio + "/" + fileNameDocument,'r'):
@@ -196,7 +226,11 @@ class FileGenerator:
 
 
 
-
+    '''
+    Limpieza del directorio.
+    Para una nueva lista, se recorre los 50 documentos.
+    Si coincide la tupla (url,orden) no se elimina. Caso contrario se elimina y se crea un archivo nuevo
+    '''
     def limpiarDirectorio(self, nombreArchivo ="*.json", directorio=""):
         try:
             unConfig = config()
@@ -210,10 +244,12 @@ class FileGenerator:
                     logController.Warning("Json Eliminado: " + str(file))
         except Exception as e:
             logController = LogsController(directorio)
-            logController.Error("L204 Scraper")
             print str(e)
             pass
 
+    '''
+    Escritura del json.    
+    '''
     def write_json(self,fileName, structure , directorio):
         ruta = self.repositoryPath
         self.crearDirectorio(ruta,directorio)
@@ -237,7 +273,10 @@ class FileGenerator:
             logController = LogsController(directorio)
             logController.Warning('L182 - Contenido Vacio')
         json.dump(structure, f, indent=2)
-
+    
+    '''
+    Escritura del html en .txt    
+    '''
     def write_file(self,minePackageLink,fileName , directorio):
         ruta = self.repositoryPath
         self.crearDirectorio(ruta,directorio)
@@ -264,7 +303,9 @@ class FileGenerator:
                 print "Excepcion escribir archivo --> " + fileName + " - " + str(e)
                 pass
                 return False
-
+    '''
+    Metodo para limpiar archivos extras generados por error.
+    '''
     def comprobarArchivosExtras(self,directorio,nombreFile,extensionFile,ruta):
         numeroFila = nombreFile[:2]
         if len(glob.glob(numeroFila + "*")) > 2:
@@ -293,6 +334,5 @@ class FileGenerator:
     def descargarContenido(self,link):
         htmlContent = URL(link).download()
         return htmlContent
-        '''htmlContent = plaintext(htmlContent, keep={'title':[],'h1':[], 'h2':[], 'strong':[]})
-        return htmlContent.replace("\n\n","<br>").replace("\n"," ")'''
+        
 

@@ -58,7 +58,6 @@ def generar_consulta_excite(consultas):
 
                 driver.quit()
         except Exception as e:
-            print str(e)
-            print "Error consulta " + consulta
+            print "Error MsmlxExcite: ",consulta,": ",str(e)
             pass
     return urls
