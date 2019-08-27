@@ -14,7 +14,7 @@ class WSResponse(models.Model):
 class WSFilteredUrlsRequest(models.Model):
     id_proyecto = models.IntegerField()
     request = models.ForeignKey(WSRequest)
-    nombre_directorio = models.CharField(max_length=50)
+    nombre_directorio = models.CharField(max_length=255)
 
 
 class SearchKey(models.Model):
@@ -28,7 +28,7 @@ class SearchResult(models.Model):
 
 
 class SearchUrl(models.Model):
-    url = models.CharField(max_length=255)
+    url = models.CharField(max_length=1000)
     searchresult = models.ForeignKey(SearchResult, on_delete=models.CASCADE, related_name='urls')
 
 

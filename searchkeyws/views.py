@@ -54,7 +54,7 @@ class WSFilteredUrlsRequestViewSet(viewsets.ModelViewSet):
 
             subprocess.Popen(['python',
                               'webminer/webMiner.py', '-r',
-                              str(request_object.request.id)])
+                              str(request_object.request.id)], stderr=subprocess.STDOUT)
 
         return Response(data={"status": "ok"})
 
