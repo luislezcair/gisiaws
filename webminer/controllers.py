@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-import copy
-import pickle
 import logging
-import time
 import os
 import datetime
 from progress import *
@@ -12,7 +9,6 @@ from webScraper.scraper import *
 from pattern.web import URL
 from search.engines import *
 from webCrawler.tools import *
-from models.ORM_functions import *
 from algorithms.retrievalAlgorithms import *
 from algorithms.tools.algorithmTools import MethodData
 

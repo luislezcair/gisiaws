@@ -6,10 +6,6 @@ from config import *
 config = config()
 db = config.getDb()
 
-class Cloud(db.Entity):
-    searchKey=PrimaryKey(str)
-    structures=Required(str)
-
 class WSRequest(db.Entity):
     _table_ = "searchkeyws_wsfilteredurlsrequest"
     id = PrimaryKey(int, auto=False)
@@ -18,6 +14,7 @@ class WSRequest(db.Entity):
     request_id = Required(int)
     urls = Set("Url")
 
+
 class Url(db.Entity):
     _table_ = "searchkeyws_filteredurl"
     id = PrimaryKey(int, auto=False)
@@ -25,12 +22,14 @@ class Url(db.Entity):
     url = Required(str)
     request_id = Required(WSRequest)
 
+
 class WsRequestState(db.Entity):
     _table_ = "wsrequest_state"
     id = PrimaryKey(int, auto=True)
     estado = Required(str)
     stop = Required(bool)
     search_keys = Required("Searchkeys_wsrequest")
+
 
 class Searchkeys_wsrequest(db.Entity):
     _table_ = "searchkeyws_wsrequest"
@@ -45,5 +44,6 @@ class Searchkeys_searchkey(db.Entity):
     id = PrimaryKey(int)
     clave = Required(str)
     request_id = Required(int)
+
 
 db.generate_mapping(create_tables=True)

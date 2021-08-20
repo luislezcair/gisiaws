@@ -1,4 +1,3 @@
-import threading, time, operator
 from optparse import OptionParser
 import networkx as nx
 from pattern.web import URL
@@ -20,7 +19,7 @@ class Structure:#es un clase auxiliar para encapsular una estructura.
 
 class WebMinerController(object):
 
-    # cloudSize = Parametro que define cuantas urls buscar por cada nodo a analizar 
+    # cloudSize = Parametro que define cuantas urls buscar por cada nodo a analizar
     # searchKey = Clave de busqueda generada en el mail.
     # id_request = id obtenido mediante el parametro.
     # urls obtenidos de los buscadores
@@ -36,7 +35,7 @@ class WebMinerController(object):
         self.crawlerController=CrawlerController(self.progress,directorio,id_request)
         self.urls = urls
         self.id_request = id_request
-    
+
     # inicio del webminer.
     # Minepackage es un array que contiene todos los datos necesarios para el proceso del webminer.
     def run(self):
@@ -45,7 +44,7 @@ class WebMinerController(object):
         self.minePackage['searchKeyStemmer'] = unProcessor.processor(self.minePackage)#Se tokeniza la query
 
         self.minePackage['cloudSize']=self.cloudSize
-        self.minePackage['clouds']=self.startClouds(self.urls)        
+        self.minePackage['clouds']=self.startClouds(self.urls)
 
         self.crawler()
 
@@ -86,7 +85,7 @@ class WebMinerController(object):
 # Inicio del proceso de Webminer #
 # Parametro: request_id del proceso iniciado #
 if __name__ == '__main__':
-    
+
     # parser de las opciones ingresadas en el comando#
     parser = OptionParser()
     parser.add_option("-r", "--request", dest="request_id")
@@ -109,11 +108,11 @@ if __name__ == '__main__':
         consulta = ""
         for searchKey in searchkeys:
             consulta = consulta + str(searchKey.clave) + " "
-        
+
         # las consultas de busquedas se concatenan en un string.
         consulta =  " ".join(filter(lambda x:x[0]!='-', consulta.split()))
         nombre_directorio = request.nombre_directorio
-        
+
         # url_list tiene una lista de (orden, URL)
         url_list = request.urls.order_by(Url.orden)
 
@@ -124,7 +123,7 @@ if __name__ == '__main__':
             urlAux.append(url.url)
             urls.append(urlAux)
         flush()
-    
+
     # Inicio del proceso del webminer.
     print "Inicio del proceso de webminer"
     wm = WebMinerController(id_request = request_id , searchKey = consulta,  urls = urls , directorio = nombre_directorio)
